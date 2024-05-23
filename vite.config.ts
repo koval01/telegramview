@@ -8,7 +8,7 @@ export default defineConfig({
     terserOptions: {
       ecma: 5,
       compress: {
-        unsafe: true,
+        unsafe: false,
         drop_console: true,
         booleans_as_integers: true
       },
