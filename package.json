@@ -13,7 +13,8 @@
     "framework7": "^8.3.3",
     "framework7-react": "^8.3.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "terser": "^5.31.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
