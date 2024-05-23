@@ -2,23 +2,27 @@ import { App, View } from 'framework7-react';
 
 import Home from './pages/home.tsx'
 import Feed from './pages/feed.tsx'
-import NotFound from './pages/notfound.tsx'
 
 const f7params = {
     name: 'Telegram',
     theme: 'ios',
+    darkMode: true,
     routes: [
         {
             path: '/',
             component: Home,
         },
         {
-            path: '/feed/:channelId',
+            path: '/:channelId',
+            component: Feed,
+        },
+        {
+            path: '/:channelId/:postId',
             component: Feed,
         },
         {
             path: '(.*)',
-            component: NotFound,
+            component: Home,
         }
     ],
 };
