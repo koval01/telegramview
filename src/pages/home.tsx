@@ -144,6 +144,7 @@ export default function Home() {
                                 alt={`${channel.title}'s avatar`}
                                 className="icon w-12 h-12 rounded-full"
                                 slot="media"
+                                draggable="false"
                             />
                         </ListItem>
                     ))}
