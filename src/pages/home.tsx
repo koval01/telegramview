@@ -48,7 +48,12 @@ export default function Home() {
         const fetchedChannels: Channel[] = [];
 
         for (const channelId of channelIds) {
-            const response = await axios.get<ApiResponse>(`https://tme.koval.page/v1/body/${channelId}`);
+            const response = await axios.get<ApiResponse>(
+                `https://tme.koval.page/v1/body/${channelId}`, {
+                    headers: {
+                        "X-Front-App-Name": "Telegram View React"
+                    }
+                });
             fetchedChannels.push(response.data.channel);
         }
 
@@ -61,7 +66,12 @@ export default function Home() {
         const fetchChannelByUsername = async (username: string) => {
             setLoading(true);
             try {
-                const response = await axios.get<ApiResponse>(`https://tme.koval.page/v1/body/${username}`);
+                const response = await axios.get<ApiResponse>(
+                    `https://tme.koval.page/v1/body/${username}`, {
+                        headers: {
+                            "X-Front-App-Name": "Telegram View React"
+                        }
+                    });
                 const newChannel = response.data.channel;
 
                 setChannels(prevChannels => {
