@@ -11,7 +11,8 @@ export default defineConfig({
         drop_console: true
       },
       format: {
-        ascii_only: true
+        ascii_only: true,
+        comments: false,
       }
     }
   }

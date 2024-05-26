@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Page, Navbar, NavLeft, NavTitle, NavRight, Block, Icon } from 'framework7-react';
+import { Page, Navbar, NavLeft, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
 
 dayjs.extend(relativeTime);
 
@@ -11,8 +11,14 @@ interface Post {
     forwarded?: { name: string };
     footer: { date: { unix: number }; views: number };
     content?: {
-        text?: { html: string };
+        text?: { html: string; string: string };
         media?: Array<{ type: string; url: string; thumb?: string }>;
+        poll?: {
+            question: string;
+            type: string;
+            votes: string;
+            options: Array<{name: string; percent: number}>;
+        }
     };
 }
 
@@ -172,7 +178,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                             draggable="false"
                                                         />
                                                     )}
-                                                    {media.type.includes('roundvideo') || media.type.includes('video') && (
+                                                    {media.type.includes('roundvideo') || media.type.includes('video') || media.type.includes('gif') || (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb) && (
                                                         <video
                                                             className={`w-full ${media.type === 'roundvideo' ? 'rounded-full' : 'rounded-xl'} ${post.content?.text?.html ? 'mt-2' : ''}`}
                                                             poster={media.thumb}
@@ -193,6 +199,23 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                     )}
                                                 </React.Fragment>
                                             ))}
+                                        {post.content?.poll && (
+                                            <div className="p-4 pt-2">
+                                                <div className="mb-1">
+                                                    <div className="font-extrabold">{post.content.poll.question}</div>
+                                                    <div className="text-neutral-500">{post.content.poll.type}</div>
+                                                </div>
+                                                {post.content.poll.options.map((option, optionIndex) => (
+                                                    <div key={optionIndex} className="flex">
+                                                        <div className="font-bold mr-2">{option.percent}%</div>
+                                                        <div className="w-full">
+                                                            <span className="text-neutral-100">{option.name}</span>
+                                                            <Progressbar progress={option.percent} />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="text-sm text-neutral-400 select-none">
