@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -59,30 +59,36 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         }, 1000);
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(
-                    `https://tme.koval.page/v1/body/${channelId}`,
-                    {
-                        params: {
-                            position: postId
-                        },
-                        headers: {
-                            "X-Front-App-Name": "Telegram View React"
-                        }
+    const fetchData = useCallback(async () => {
+        try {
+            const response = await axios.get(
+                `https://tme.koval.page/v1/body/${channelId}`,
+                {
+                    params: {
+                        position: postId
+                    },
+                    headers: {
+                        "X-Front-App-Name": "Telegram View React"
                     }
-                );
-                setChannel(response.data.channel);
-                setPosts(response.data.content.posts.reverse());
-            } catch (error) {
-                console.error("Error fetching channel data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [channelId]);
+                }
+            );
+            setChannel(response.data.channel);
+            setPosts(response.data.content.posts.reverse());
+        } catch (error) {
+            console.error("Error fetching channel data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [channelId, postId]);
+
+    const refreshData = async (done: () => void) => {
+        await fetchData();
+        done();
+    };
+
+    useEffect(() => {
+        fetchData().then();
+    }, [fetchData]);
 
     const formatDate = (unixTimestamp: number) => {
         const date = dayjs.unix(unixTimestamp);
@@ -91,7 +97,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     };
 
     return (
-        <Page infinite infiniteDistance={50} infinitePreloader={true} onInfinite={loadMore}>
+        <Page infinite infiniteDistance={50} infinitePreloader={true} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData}>
             <Navbar className="!select-none">
                 <NavLeft>
                     {channel.avatar && <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />}

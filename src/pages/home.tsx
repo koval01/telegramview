@@ -33,7 +33,7 @@ export default function Home() {
             setChannels(parsedChannels);
             setFilteredChannels(parsedChannels);
         } else {
-            fetchChannels();
+            fetchChannels().then();
         }
     }, []);
 
@@ -107,7 +107,7 @@ export default function Home() {
                     return updatedChannels;
                 });
             } else {
-                fetchChannelByUsername(searchQuery);
+                fetchChannelByUsername(searchQuery).then();
             }
         }
     }, [searchQuery, channels]);
