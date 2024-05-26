@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Page, Navbar, NavLeft, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
+import { Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
 
 dayjs.extend(relativeTime);
 
@@ -104,15 +104,12 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
 
     return (
         <Page infinite infiniteDistance={50} infinitePreloader={true} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData}>
-            <Navbar className="!select-none">
-                <NavLeft>
-                    {channel.avatar && <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />}
-                </NavLeft>
+            <Navbar className="!select-none" backLink="Back">
                 <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
                     {channel.title || channelId}
                 </NavTitle>
                 <NavRight>
-                    <div></div>
+                    {channel.avatar && <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />}
                 </NavRight>
             </Navbar>
 
