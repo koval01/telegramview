@@ -6,6 +6,8 @@ import Framework7React from 'framework7-react'
 import App from './App.tsx'
 
 import 'framework7/css/bundle'
+import 'framework7-icons'
+
 import './index.css'
 
 Framework7.use(Framework7React)
