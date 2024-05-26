@@ -179,10 +179,12 @@ const ChannelPage: React.FC<Props> = ({ channelId = 'notcoin', postId }) => {
                                     </div>
                                 </div>
                                 <div className="text-sm text-neutral-400 select-none">
-                                  <span>
-                                    <Icon f7="eye_fill" size="16px" className="!align-baseline mr-1" />
-                                      {post.footer.views}
-                                  </span>
+                                    {post.footer.views && (
+                                        <span>
+                                            <Icon f7="eye_fill" size="16px" className="!align-baseline mr-1"/>
+                                            {post.footer.views}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
