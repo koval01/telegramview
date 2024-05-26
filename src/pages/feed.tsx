@@ -44,10 +44,12 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
 
     const loadMore = async () => {
         if (!allowInfinite) return;
-        setShowPreloader(true);
-        setAllowInfinite(false);
 
         const lastPostId = posts[posts.length - 1]?.id;
+        if (lastPostId <= 1) return;
+
+        setShowPreloader(true);
+        setAllowInfinite(false);
 
         setTimeout(async () => {
             try {
