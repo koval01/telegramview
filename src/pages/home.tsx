@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Page, Navbar, Subnavbar, Searchbar, List, ListItem } from 'framework7-react';
+import { Page, Navbar, Subnavbar, Searchbar, List, ListItem, Preloader } from 'framework7-react';
 import axios from 'axios';
 
 interface Channel {
@@ -123,7 +123,9 @@ export default function Home() {
                 </Subnavbar>
             </Navbar>
             {loading ? (
-                <p>Loading...</p>
+                <div className="mt-4">
+                    <Preloader size={48} className="block m-auto" />
+                </div>
             ) : filteredChannels.length === 0 ? (
                 <List strongIos outlineIos dividersIos className="searchbar-not-found">
                     <ListItem title="Nothing found" />

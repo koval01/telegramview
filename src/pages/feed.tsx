@@ -40,9 +40,11 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [allowInfinite, setAllowInfinite] = useState(true);
+    const [showPreloader, setShowPreloader] = useState(false);
 
     const loadMore = async () => {
         if (!allowInfinite) return;
+        setShowPreloader(true);
         setAllowInfinite(false);
 
         const lastPostId = posts[posts.length - 1]?.id;
@@ -61,6 +63,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 console.error("Error fetching more posts:", error);
             } finally {
                 setAllowInfinite(true);
+                setShowPreloader(false);
             }
         }, 1000);
     };
@@ -103,7 +106,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     };
 
     return (
-        <Page infinite infiniteDistance={50} infinitePreloader={true} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData}>
+        <Page infinite infiniteDistance={50} infinitePreloader={showPreloader} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData}>
             <Navbar className="!select-none" backLink="Back">
                 <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
                     {channel.title || channelId}
