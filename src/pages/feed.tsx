@@ -29,7 +29,7 @@ interface Props {
     postId?: string;
 }
 
-const ChannelPage: React.FC<Props> = ({ channelId = 'notcoin', postId }) => {
+const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const [channel, setChannel] = useState<Channel>({});
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +43,13 @@ const ChannelPage: React.FC<Props> = ({ channelId = 'notcoin', postId }) => {
 
         setTimeout(async () => {
             try {
-                const response = await axios.get(`https://tme.koval.page/v1/more/${channelId}/before/${lastPostId}`);
+                const response = await axios.get(
+                    `https://tme.koval.page/v1/more/${channelId}/before/${lastPostId}`, {
+                        headers: {
+                            "X-Front-App-Name": "Telegram View React"
+                        }
+                    }
+                );
                 setPosts((prevPosts) => [...prevPosts, ...response.data.posts.reverse()]);
             } catch (error) {
                 console.error("Error fetching more posts:", error);
@@ -58,9 +64,14 @@ const ChannelPage: React.FC<Props> = ({ channelId = 'notcoin', postId }) => {
             try {
                 const response = await axios.get(
                     `https://tme.koval.page/v1/body/${channelId}`,
-                    {params: {
-                        position: postId
-                    }}
+                    {
+                        params: {
+                            position: postId
+                        },
+                        headers: {
+                            "X-Front-App-Name": "Telegram View React"
+                        }
+                    }
                 );
                 setChannel(response.data.channel);
                 setPosts(response.data.content.posts.reverse());
