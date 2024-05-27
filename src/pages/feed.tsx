@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import { Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { Toast } from "framework7/types"
+import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react'
 
 dayjs.extend(relativeTime);
 
@@ -42,6 +43,19 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const [allowInfinite, setAllowInfinite] = useState(true);
     const [showPreloader, setShowPreloader] = useState(false);
 
+    const toastCenter = useRef<Toast.Toast | null>(null);
+
+    const showToastCenter = (message: string) => {
+        if (!toastCenter.current) {
+            toastCenter.current = f7.toast.create({
+                text: message,
+                position: 'center',
+                closeTimeout: 2000,
+            })
+        }
+        toastCenter.current.open()
+    };
+
     const loadMore = async () => {
         if (!allowInfinite) return;
 
@@ -63,6 +77,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 setPosts((prevPosts) => [...prevPosts, ...response.data.posts.reverse()]);
             } catch (error) {
                 console.error("Error fetching more posts:", error);
+                showToastCenter("Error fetching more posts");
             } finally {
                 setAllowInfinite(true);
                 setShowPreloader(false);
@@ -87,6 +102,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             setPosts(response.data.content.posts.reverse());
         } catch (error) {
             console.error("Error fetching channel data:", error);
+            showToastCenter("Error fetching channel data");
         } finally {
             setLoading(false);
         }
@@ -101,6 +117,14 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         fetchData().then();
     }, [fetchData]);
 
+    const onPageBeforeOut = () => {
+        // @ts-expect-error: In the documentation, this method is used without arguments
+        f7.toast.close();
+    };
+    const onPageBeforeRemove = () => {
+        if (toastCenter.current) toastCenter.current.destroy();
+    };
+
     const formatDate = (unixTimestamp: number) => {
         const date = dayjs.unix(unixTimestamp);
         const now = dayjs();
@@ -108,7 +132,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     };
 
     return (
-        <Page infinite infiniteDistance={50} infinitePreloader={showPreloader} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData}>
+        <Page infinite infiniteDistance={50} infinitePreloader={showPreloader} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData} onPageBeforeRemove={onPageBeforeRemove} onPageBeforeOut={onPageBeforeOut}>
             <Navbar className="!select-none" backLink="Back">
                 <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
                     {channel.title || channelId}
@@ -180,7 +204,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                             draggable="false"
                                                         />
                                                     )}
-                                                    {media.type.includes('roundvideo') || media.type.includes('video') || media.type.includes('gif') || (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb) && (
+                                                    {(media.type.includes('roundvideo') || media.type.includes('video') || media.type.includes('gif') || (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb)) && (
                                                         <video
                                                             className={`w-full ${media.type === 'roundvideo' ? 'rounded-full' : 'rounded-xl'} ${post.content?.text?.html ? 'mt-2' : ''}`}
                                                             poster={media.thumb}
