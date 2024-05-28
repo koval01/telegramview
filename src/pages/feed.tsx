@@ -5,45 +5,45 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { Toast } from "framework7/types"
 import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react'
 
-dayjs.extend(relativeTime);
+dayjs.extend(relativeTime)
 
 interface Post {
-    id: number;
-    forwarded?: { name: string };
-    footer: { date: { unix: number }; views: number };
+    id: number
+    forwarded?: { name: string }
+    footer: { date: { unix: number }; views: number }
     content?: {
-        text?: { html: string; string: string };
-        media?: Array<{ type: string; url: string; thumb?: string }>;
+        text?: { html: string; string: string }
+        media?: Array<{ type: string; url: string; thumb?: string }>
         poll?: {
-            question: string;
-            type: string;
-            votes: string;
-            options: Array<{name: string; percent: number}>;
+            question: string
+            type: string
+            votes: string
+            options: Array<{name: string; percent: number}>
         }
-    };
+    }
 }
 
 interface Channel {
-    avatar?: string;
-    title?: string;
-    username?: string;
-    description?: string;
-    counters?: Record<string, number>;
+    avatar?: string
+    title?: string
+    username?: string
+    description?: string
+    counters?: Record<string, number>
 }
 
 interface Props {
-    channelId: string;
-    postId?: string;
+    channelId: string
+    postId?: string
 }
 
 const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
-    const [channel, setChannel] = useState<Channel>({});
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [allowInfinite, setAllowInfinite] = useState(true);
-    const [showPreloader, setShowPreloader] = useState(false);
+    const [channel, setChannel] = useState<Channel>({})
+    const [posts, setPosts] = useState<Post[]>([])
+    const [loading, setLoading] = useState(true)
+    const [allowInfinite, setAllowInfinite] = useState(true)
+    const [showPreloader, setShowPreloader] = useState(false)
 
-    const toastCenter = useRef<Toast.Toast | null>(null);
+    const toastCenter = useRef<Toast.Toast | null>(null)
 
     const showToastCenter = (message: string) => {
         if (!toastCenter.current) {
@@ -54,16 +54,16 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             })
         }
         toastCenter.current.open()
-    };
+    }
 
     const loadMore = async () => {
-        if (!allowInfinite) return;
+        if (!allowInfinite) return
 
-        const lastPostId = posts[posts.length - 1]?.id;
-        if (lastPostId <= 1) return;
+        const lastPostId = posts[posts.length - 1]?.id
+        if (lastPostId <= 1) return
 
-        setShowPreloader(true);
-        setAllowInfinite(false);
+        setShowPreloader(true)
+        setAllowInfinite(false)
 
         setTimeout(async () => {
             try {
@@ -73,17 +73,17 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                             "X-Front-App-Name": "Telegram View React"
                         }
                     }
-                );
-                setPosts((prevPosts) => [...prevPosts, ...response.data.posts.reverse()]);
+                )
+                setPosts((prevPosts) => [...prevPosts, ...response.data.posts.reverse()])
             } catch (error) {
-                console.error("Error fetching more posts:", error);
-                showToastCenter("Error fetching more posts");
+                console.error("Error fetching more posts:", error)
+                showToastCenter("Error fetching more posts")
             } finally {
-                setAllowInfinite(true);
-                setShowPreloader(false);
+                setAllowInfinite(true)
+                setShowPreloader(false)
             }
-        }, 1000);
-    };
+        }, 1000)
+    }
 
     const fetchData = useCallback(async () => {
         try {
@@ -97,39 +97,39 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                         "X-Front-App-Name": "Telegram View React"
                     }
                 }
-            );
-            setChannel(response.data.channel);
-            setPosts(response.data.content.posts.reverse());
+            )
+            setChannel(response.data.channel)
+            setPosts(response.data.content.posts.reverse())
         } catch (error) {
-            console.error("Error fetching channel data:", error);
-            showToastCenter("Error fetching channel data");
+            console.error("Error fetching channel data:", error)
+            showToastCenter("Error fetching channel data")
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    }, [channelId, postId]);
+    }, [channelId, postId])
 
     const refreshData = async (done: () => void) => {
-        await fetchData();
-        done();
-    };
+        await fetchData()
+        done()
+    }
 
     useEffect(() => {
-        fetchData().then();
-    }, [fetchData]);
+        fetchData().then()
+    }, [fetchData])
 
     const onPageBeforeOut = () => {
         // @ts-expect-error: In the documentation, this method is used without arguments
-        f7.toast.close();
-    };
+        f7.toast.close()
+    }
     const onPageBeforeRemove = () => {
-        if (toastCenter.current) toastCenter.current.destroy();
-    };
+        if (toastCenter.current) toastCenter.current.destroy()
+    }
 
     const formatDate = (unixTimestamp: number) => {
-        const date = dayjs.unix(unixTimestamp);
-        const now = dayjs();
-        return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D');
-    };
+        const date = dayjs.unix(unixTimestamp)
+        const now = dayjs()
+        return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D')
+    }
 
     return (
         <Page infinite infiniteDistance={50} infinitePreloader={showPreloader} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData} onPageBeforeRemove={onPageBeforeRemove} onPageBeforeOut={onPageBeforeOut}>
@@ -258,7 +258,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 </div>
             )}
         </Page>
-    );
-};
+    )
+}
 
-export default ChannelPage;
+export default ChannelPage

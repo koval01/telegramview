@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import { blockContextMenu, detectDevTools, removeContextMenuBlock, removeDevToolsDetection } from './devTools'
+
 import { App, View } from 'framework7-react'
 
 import Home from './pages/home.tsx'
@@ -27,7 +30,19 @@ const f7params = {
     ],
 }
 
+const devToolsPrevent = () => {
+    blockContextMenu()
+    detectDevTools()
+
+    return () => {
+        removeContextMenuBlock()
+        removeDevToolsDetection()
+    }
+}
+
 export default function Application () {
+    useEffect(() => process.env.NODE_ENV === 'production' ? devToolsPrevent() : void 0, [])
+
     return (
         <App { ...f7params }>
             <View
