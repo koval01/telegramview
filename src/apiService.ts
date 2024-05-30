@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 
 const API_HOST = import.meta.env.VITE_API_HOST;
 const BASE_URL = `https://${API_HOST}/v1/`;
