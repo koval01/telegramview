@@ -3,7 +3,7 @@ import { blockContextMenu, detectDevTools, removeContextMenuBlock, removeDevTool
 
 import { App, View } from 'framework7-react'
 
-import Home from './pages/home.tsx'
+import Home from './pages/Home'
 import Feed from './pages/feed.tsx'
 
 const f7params = {
