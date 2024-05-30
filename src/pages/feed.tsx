@@ -1,49 +1,49 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
-import axios from 'axios'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { Toast } from "framework7/types"
-import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react'
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { Toast } from "framework7/types";
+import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
+import apiService from '../apiService';
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 interface Post {
-    id: number
-    forwarded?: { name: string }
-    footer: { date: { unix: number }; views: number }
+    id: number;
+    forwarded?: { name: string };
+    footer: { date: { unix: number }; views: number };
     content?: {
-        text?: { html: string; string: string }
-        media?: Array<{ type: string; url: string; thumb?: string }>
+        text?: { html: string; string: string };
+        media?: Array<{ type: string; url: string; thumb?: string }>;
         poll?: {
-            question: string
-            type: string
-            votes: string
-            options: Array<{name: string; percent: number}>
-        }
-    }
+            question: string;
+            type: string;
+            votes: string;
+            options: Array<{ name: string; percent: number }>;
+        };
+    };
 }
 
 interface Channel {
-    avatar?: string
-    title?: string
-    username?: string
-    description?: string
-    counters?: Record<string, number>
+    avatar?: string;
+    title?: string;
+    username?: string;
+    description?: string;
+    counters?: Record<string, number>;
 }
 
 interface Props {
-    channelId: string
-    postId?: string
+    channelId: string;
+    postId?: string;
 }
 
 const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
-    const [channel, setChannel] = useState<Channel>({})
-    const [posts, setPosts] = useState<Post[]>([])
-    const [loading, setLoading] = useState(true)
-    const [allowInfinite, setAllowInfinite] = useState(true)
-    const [showPreloader, setShowPreloader] = useState(false)
+    const [channel, setChannel] = useState<Channel>({});
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [allowInfinite, setAllowInfinite] = useState(true);
+    const [showPreloader, setShowPreloader] = useState(false);
 
-    const toastCenter = useRef<Toast.Toast | null>(null)
+    const toastCenter = useRef<Toast.Toast | null>(null);
 
     const showToastCenter = (message: string) => {
         if (!toastCenter.current) {
@@ -51,88 +51,90 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 text: message,
                 position: 'center',
                 closeTimeout: 2000,
-            })
+            });
         }
-        toastCenter.current.open()
-    }
+        toastCenter.current.open();
+    };
 
     const loadMore = async () => {
-        if (!allowInfinite) return
+        if (!allowInfinite) return;
 
-        const lastPostId = posts[posts.length - 1]?.id
-        if (lastPostId <= 1) return
+        const lastPostId = posts[posts.length - 1]?.id;
+        if (lastPostId <= 1) return;
 
-        setShowPreloader(true)
-        setAllowInfinite(false)
+        setShowPreloader(true);
+        setAllowInfinite(false);
 
         setTimeout(async () => {
             try {
-                const response = await axios.get(
-                    `https://tme.koval.page/v1/more/${channelId}/before/${lastPostId}`, {
-                        headers: {
-                            "X-Front-App-Name": "Telegram View React"
-                        }
-                    }
-                )
-                setPosts((prevPosts) => [...prevPosts, ...response.data.posts.reverse()])
+                const response = await apiService.get<{ posts: Post[] }>(`more/${channelId}/before/${lastPostId}`);
+                if (response) {
+                    setPosts((prevPosts) => [...prevPosts, ...response.posts.reverse()]);
+                }
             } catch (error) {
-                console.error("Error fetching more posts:", error)
-                showToastCenter("Error fetching more posts")
+                console.error("Error fetching more posts:", error);
+                showToastCenter("Error fetching more posts");
             } finally {
-                setAllowInfinite(true)
-                setShowPreloader(false)
+                setAllowInfinite(true);
+                setShowPreloader(false);
             }
-        }, 1000)
-    }
+        }, 1000);
+    };
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `https://tme.koval.page/v1/body/${channelId}`,
-                {
-                    params: {
-                        position: postId
-                    },
-                    headers: {
-                        "X-Front-App-Name": "Telegram View React"
-                    }
+            const response = await apiService.get<{ channel: Channel; content: { posts: Post[] } }>(`body/${channelId}`, {
+                params: {
+                    position: postId
                 }
-            )
-            setChannel(response.data.channel)
-            setPosts(response.data.content.posts.reverse())
+            });
+            if (response) {
+                setChannel(response.channel);
+                setPosts(response.content.posts.reverse());
+            }
         } catch (error) {
-            console.error("Error fetching channel data:", error)
-            showToastCenter("Error fetching channel data")
+            console.error("Error fetching channel data:", error);
+            showToastCenter("Error fetching channel data");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }, [channelId, postId])
+    }, [channelId, postId]);
 
     const refreshData = async (done: () => void) => {
-        await fetchData()
-        done()
-    }
+        await fetchData();
+        done();
+    };
 
     useEffect(() => {
-        fetchData().then()
-    }, [fetchData])
+        fetchData().then();
+    }, [fetchData]);
 
     const onPageBeforeOut = () => {
         // @ts-expect-error: In the documentation, this method is used without arguments
-        f7.toast.close()
-    }
+        f7.toast.close();
+    };
     const onPageBeforeRemove = () => {
-        if (toastCenter.current) toastCenter.current.destroy()
-    }
+        if (toastCenter.current) toastCenter.current.destroy();
+    };
 
     const formatDate = (unixTimestamp: number) => {
-        const date = dayjs.unix(unixTimestamp)
-        const now = dayjs()
-        return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D')
-    }
+        const date = dayjs.unix(unixTimestamp);
+        const now = dayjs();
+        return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D');
+    };
 
     return (
-        <Page infinite infiniteDistance={50} infinitePreloader={showPreloader} onInfinite={loadMore} ptr ptrMousewheel={true} onPtrRefresh={refreshData} onPageBeforeRemove={onPageBeforeRemove} onPageBeforeOut={onPageBeforeOut}>
+        <Page
+            infinite
+            infiniteDistance={50}
+            infinitePreloader={showPreloader}
+            onInfinite={loadMore}
+            ptr
+            ptrMousewheel={true}
+            onPtrRefresh={refreshData}
+            onPageBeforeRemove={onPageBeforeRemove}
+            onPageBeforeOut={onPageBeforeOut}
+        >
             <Navbar className="!select-none" backLink="Back">
                 <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
                     {channel.title || channelId}
@@ -172,7 +174,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                     {posts.map((post, index) => (
                         <div
                             key={index}
-                            className={`px-4 ${post.forwarded ? 'py-6' : 'py-3'} bg-transparent first:border-none border-t border-solid border-neutral-700 relative hover:bg-neutral-900 transition-colors duration-200`}
+                            className={`px-4 ${post.forwarded ? 'py-6' : 'py-3'} bg-transparent first:border-none border-t border-solid border-neutral-700 relative active:bg-neutral-900 transition-colors duration-200`}
                         >
                             {post.forwarded && (
                                 <div className="flex absolute left-[3.25rem] top-1 select-none">
@@ -247,7 +249,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                 <div className="text-sm text-neutral-400 select-none">
                                     {post.footer.views && (
                                         <span>
-                                            <Icon f7="eye_fill" size="16px" className="!align-baseline mr-1"/>
+                                            <Icon f7="eye_fill" size="16px" className="!align-baseline mr-1" />
                                             {post.footer.views}
                                         </span>
                                     )}
@@ -258,7 +260,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 </div>
             )}
         </Page>
-    )
-}
+    );
+};
 
-export default ChannelPage
+export default ChannelPage;
