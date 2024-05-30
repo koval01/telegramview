@@ -60,6 +60,7 @@ export default function Home() {
 
     useEffect(() => {
         searchAction(searchQuery).then();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [channels]);
 
     const handleAvatarError = async (username: string) => {
