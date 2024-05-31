@@ -147,36 +147,38 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             </Navbar>
 
             <Block className="hidden select-none md:flex lg:px-64">
-                <div className="shrink-0">
-                    {channel.avatar ? (
-                        <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
-                    ) : (
-                        <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
-                    )}
-                </div>
-                <div className="ml-3 w-full">
-                    <div className="text-2xl font-extrabold flex gap-1">
-                        <div>
-                            {channel.title || channelId}
-                        </div>
-                        <div>
+                <div className="m-auto flex">
+                    <div className="shrink-0">
+                        {channel.avatar ? (
+                            <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
+                        ) : (
+                            <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
+                        )}
+                    </div>
+                    <div className="ml-3 w-full">
+                        <div className="text-2xl font-extrabold flex gap-1">
+                            <div>
+                                {channel.title || channelId}
+                            </div>
                             {channel.labels?.includes("verified") && (
-                                <VerifiedIcon className="w-6 h-6 relative top-1 active:text-sky-300 active:scale-150 transition-all" />
+                                <div>
+                                    <VerifiedIcon className="w-8 h-8 active:text-sky-300 active:scale-150 transition-all" />
+                                </div>
                             )}
                         </div>
+                        <div className="text-lg text-neutral-400">{channel.username || ''}</div>
+                        <div className="text-sm mt-3">{channel.description || ''}</div>
+                        {channel.counters && (
+                            <div className="flex mt-4">
+                                {Object.entries(channel.counters).map(([key, value]) => (
+                                    <div className="mr-4" key={key}>
+                                        <div className="text-lg font-bold">{value}</div>
+                                        <div className="text-neutral-500 text-sm">{key}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    <div className="text-xl text-neutral-400">{channel.username || ''}</div>
-                    <div className="text-sm mt-3">{channel.description || ''}</div>
-                    {channel.counters && (
-                        <div className="flex mt-4">
-                            {Object.entries(channel.counters).map(([key, value]) => (
-                                <div className="mr-4" key={key}>
-                                    <div className="text-lg font-bold">{value}</div>
-                                    <div className="text-neutral-500 text-sm">{key}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </Block>
 
@@ -199,7 +201,14 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center mb-2 select-none">
-                                        <span className="mr-1 font-bold">{channel.title}</span>
+                                        <div className="mr-1 flex gap-0.5">
+                                            <div className="font-bold">{channel.title}</div>
+                                            {channel.labels?.includes("verified") && (
+                                                <div>
+                                                    <VerifiedIcon className="w-5 h-5" />
+                                                </div>
+                                            )}
+                                        </div>
                                         <span className="mr-1 text-neutral-400">{channel.username}</span>
                                         <span className="mr-1 text-neutral-400">·</span>
                                         <span className="mr-1 text-neutral-400">{formatDate(post.footer.date.unix)}</span>
