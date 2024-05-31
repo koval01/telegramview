@@ -4,6 +4,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Toast } from "framework7/types";
 import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
 import apiService from '../apiService';
+import VerifiedIcon from '../icons/VerifiedIcon';
 
 dayjs.extend(relativeTime);
 
@@ -29,6 +30,7 @@ interface Channel {
     username?: string;
     description?: string;
     counters?: Record<string, number>;
+    labels?: Array<string>
 }
 
 interface Props {
@@ -144,7 +146,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 </NavRight>
             </Navbar>
 
-            <Block className="flex" strong inset>
+            <Block className="hidden md:flex lg:px-64">
                 <div className="shrink-0">
                     {channel.avatar ? (
                         <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
@@ -153,7 +155,16 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                     )}
                 </div>
                 <div className="ml-3 w-full">
-                    <div className="text-2xl font-extrabold">{channel.title || channelId}</div>
+                    <div className="text-2xl font-extrabold flex gap-1">
+                        <div>
+                            {channel.title || channelId}
+                        </div>
+                        <div>
+                            {channel.labels?.includes("verified") && (
+                                <VerifiedIcon className="w-6 h-6 relative top-1" />
+                            )}
+                        </div>
+                    </div>
                     <div className="text-xl text-neutral-400">{channel.username || ''}</div>
                     <div className="text-sm mt-3">{channel.description || ''}</div>
                     {channel.counters && (
