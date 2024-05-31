@@ -53,7 +53,7 @@ export default function useChannelSearch() {
 
         debounceTimeout.current = setTimeout(() => {
             searchAction(query).then();
-        }, 500);
+        }, 600);
     };
 
     useEffect(() => {

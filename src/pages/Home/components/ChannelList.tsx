@@ -1,5 +1,6 @@
 import React from 'react';
 import { List, ListItem, Preloader } from 'framework7-react';
+import VerifiedIcon from '../../../icons/VerifiedIcon.tsx';
 import store from "../../../store.ts";
 
 interface Channel {
@@ -30,25 +31,39 @@ const ChannelList: React.FC<ChannelListProps> = ({ filteredChannels, loading, ha
                 </List>
             ) : (
                 <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
-                    {filteredChannels.map((channel) => (
-                        <ListItem
-                            link={`/${channel.username}`}
-                            key={channel.username}
-                            title={channel.title}
-                            after={`@${channel.username}`}
-                            subtitle={channel.subscribers}
-                            text={channel.description}
-                        >
-                            <img
-                                src={channel.avatar}
-                                alt={`${channel.title}'s avatar`}
-                                className="icon w-12 h-12 rounded-full"
-                                slot="media"
-                                draggable="false"
-                                onError={() => handleAvatarError(channel.username)}
-                            />
-                        </ListItem>
-                    ))}
+                    {filteredChannels.map((channel) => {
+                        const title = (
+                            <div className="flex gap-0.5">
+                                <div>{channel.title}</div>
+                                {channel.is_verified && (
+                                    <div>
+                                        <VerifiedIcon className="w-6 h-6"/>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                        return (
+                            <ListItem
+                                link={`/${channel.username}`}
+                                key={channel.username}
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-ignore
+                                title={title}
+                                after={`@${channel.username}`}
+                                subtitle={channel.subscribers}
+                                text={channel.description}
+                            >
+                                <img
+                                    src={channel.avatar}
+                                    alt={`${channel.title}'s avatar`}
+                                    className="icon w-12 h-12 rounded-full"
+                                    slot="media"
+                                    draggable="false"
+                                    onError={() => handleAvatarError(channel.username)}
+                                />
+                            </ListItem>
+                        )
+                    })}
                 </List>
             )}
         </>

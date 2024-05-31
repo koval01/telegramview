@@ -5,6 +5,7 @@ Sentry.init({
     integrations: [
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
+        Sentry.browserProfilingIntegration()
     ],
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions

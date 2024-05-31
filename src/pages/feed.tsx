@@ -11,7 +11,7 @@ dayjs.extend(relativeTime);
 interface Post {
     id: number;
     forwarded?: { name: string };
-    footer: { date: { unix: number }; views: number };
+    footer: { date: { unix: number }; views: number; author?: string };
     content?: {
         text?: { html: string; string: string };
         media?: Array<{ type: string; url: string; thumb?: string }>;
@@ -196,7 +196,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                 </div>
                             )}
                             <div className="flex">
-                                <div className="flex mr-2 shrink-0 relative top-1">
+                                <div className="flex mr-2 shrink-0 relative top-1 select-none">
                                     <img className="w-12 h-12 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
                                 </div>
                                 <div className="flex-1">
@@ -248,14 +248,14 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                 </React.Fragment>
                                             ))}
                                         {post.content?.poll && (
-                                            <div className="p-4 pt-2">
+                                            <div className="p-4 pt-2 select-none">
                                                 <div className="mb-1">
                                                     <div className="font-extrabold">{post.content.poll.question}</div>
                                                     <div className="text-neutral-500">{post.content.poll.type}</div>
                                                 </div>
                                                 {post.content.poll.options.map((option, optionIndex) => (
                                                     <div key={optionIndex} className="flex">
-                                                        <div className="font-bold mr-2">{option.percent}%</div>
+                                                        <div className="font-bold mr-2 min-w-8">{option.percent}%</div>
                                                         <div className="w-full">
                                                             <span className="text-neutral-100">{option.name}</span>
                                                             <Progressbar progress={option.percent} />
@@ -264,14 +264,26 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                 ))}
                                             </div>
                                         )}
+                                        {post.footer?.author && (
+                                            <div className="mt-2 flex gap-1 text-neutral-400 select-none">
+                                                <div>
+                                                    <Icon f7="person" size="12px" />
+                                                </div>
+                                                <div>{post.footer.author}</div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="text-sm text-neutral-400 select-none">
+                                <div className="select-none">
                                     {post.footer.views && (
-                                        <span>
-                                            <Icon f7="eye_fill" size="16px" className="!align-baseline mr-1" />
-                                            {post.footer.views}
-                                        </span>
+                                        <div className="flex gap-1 text-neutral-400">
+                                            <div>
+                                                <Icon f7="eye_fill" size="14px" />
+                                            </div>
+                                            <div className="text-sm">
+                                                {post.footer.views}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             </div>

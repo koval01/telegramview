@@ -4,7 +4,7 @@ const VerifiedIcon = ({ className = '', ...props }) => {
             viewBox="0 0 22 22"
             aria-label="Verified account"
             role="img"
-            className={`text-sky-400 fill-current ${className}`}
+            className={`text-sky-500 fill-current ${className}`}
             data-testid="icon-verified"
             {...props}
         >
