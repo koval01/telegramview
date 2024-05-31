@@ -146,7 +146,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 </NavRight>
             </Navbar>
 
-            <Block className="hidden md:flex lg:px-64">
+            <Block className="hidden select-none md:flex lg:px-64">
                 <div className="shrink-0">
                     {channel.avatar ? (
                         <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
@@ -161,7 +161,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                         </div>
                         <div>
                             {channel.labels?.includes("verified") && (
-                                <VerifiedIcon className="w-6 h-6 relative top-1" />
+                                <VerifiedIcon className="w-6 h-6 relative top-1 active:text-sky-300 active:scale-150 transition-all" />
                             )}
                         </div>
                     </div>

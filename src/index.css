@@ -5,6 +5,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  color: #000;
+  background-color: #fff;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
