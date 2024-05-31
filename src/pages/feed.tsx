@@ -139,17 +139,26 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         >
             <Navbar className="!select-none" backLink="Back">
                 <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
-                    {channel.title || channelId}
+                    <div className="flex gap-0.5">
+                        <div>{channel.title || channelId}</div>
+                        {channel.labels?.includes("verified") && (
+                            <div>
+                                <VerifiedIcon className="w-5 h-5"/>
+                            </div>
+                        )}
+                    </div>
                 </NavTitle>
                 <NavRight>
-                    {channel.avatar && <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />}
+                    {channel.avatar &&
+                        <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false"/>
+                    }
                 </NavRight>
             </Navbar>
 
             <Block className="hidden select-none md:flex lg:px-64">
                 <div className="m-auto flex">
                     <div className="shrink-0">
-                        {channel.avatar ? (
+                    {channel.avatar ? (
                             <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
                         ) : (
                             <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
