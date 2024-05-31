@@ -128,7 +128,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     return (
         <Page
             infinite
-            infiniteDistance={50}
+            infiniteDistance={32}
             infinitePreloader={showPreloader}
             onInfinite={loadMore}
             ptr
