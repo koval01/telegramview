@@ -22,13 +22,13 @@ const ChannelList: React.FC<ChannelListProps> = ({ filteredChannels, loading, ha
     return (
         <>
             {loading || store.state.channelsLoading ? (
-                <div className="mt-4">
-                    <Preloader size={48} className="block m-auto" />
+                <div className="mt-8">
+                    <Preloader size={36} className="block m-auto" />
                 </div>
             ) : filteredChannels.length === 0 ? (
-                <List strongIos outlineIos dividersIos className="searchbar-not-found">
-                    <ListItem title="Nothing found" />
-                </List>
+                <span className="text-neutral-400 text-center block m-auto mt-4">
+                    list is currently empty
+                </span>
             ) : (
                 <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
                     {filteredChannels.map((channel) => {

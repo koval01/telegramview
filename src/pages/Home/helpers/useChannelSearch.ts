@@ -44,7 +44,7 @@ export default function useChannelSearch() {
     }, [channels]);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const query = e.target.value;
+        const query = e.target.value?.toLowerCase();
         setSearchQuery(query);
 
         if (debounceTimeout.current) {
@@ -56,10 +56,28 @@ export default function useChannelSearch() {
         }, 600);
     };
 
+    const loadChannelsFromStorage = () => {
+        const storedChannels = localStorage.getItem('channels');
+        if (!storedChannels) return;
+
+        const parsedChannels = JSON.parse(storedChannels) as Channel[];
+        setFilteredChannels(parsedChannels);
+    }
+
+    const saveChannelsToStorage = () => {
+        if (!channels.length) return;
+        localStorage.setItem('channels', JSON.stringify(channels));
+    }
+
     useEffect(() => {
         searchAction(searchQuery).then();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [channels]);
+
+    useEffect(() => loadChannelsFromStorage(), []);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => saveChannelsToStorage(), [channels]);
 
     const handleAvatarError = async (username: string) => {
         await searchAction(username);
