@@ -22,6 +22,18 @@ export default function useChannelSearch() {
         await store.dispatch('fetchChannelByUsername', query);
     };
 
+    const filterChannels = (query: string, update: boolean) => {
+        const filtered = channels.filter((channel) =>
+            channel.username.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (filtered.length && !update) {
+            return filtered;
+        }
+
+        return;
+    }
+
     const searchAction = useCallback(async (query: string = "", update: boolean = false) => {
         setLoading(true);
 
@@ -31,11 +43,8 @@ export default function useChannelSearch() {
         };
 
         if (query !== '') {
-            const filtered = channels.filter((channel) =>
-                channel.username.toLowerCase().includes(query.toLowerCase())
-            );
-
-            if (filtered.length && !update) {
+            const filtered = filterChannels(query, update);
+            if (filtered) {
                 finish(filtered);
                 return;
             }
@@ -78,17 +87,14 @@ export default function useChannelSearch() {
 
     useEffect(() => {
         searchAction(searchQuery).then();
+        saveChannelsToStorage();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [channels]);
 
     useEffect(() => loadChannelsFromStorage(), []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => saveChannelsToStorage(), [channels]);
-
     const handleAvatarError = async (username: string) => {
         await searchAction(username, true);
-        setFilteredChannels(channels);
     };
 
     return { searchQuery, filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction };
