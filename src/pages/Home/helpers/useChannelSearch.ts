@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, ChangeEvent } from 'react';
+import {ChangeEvent, useCallback, useEffect, useRef, useState} from 'react';
 import store from '../../../store';
 
 interface Channel {
@@ -20,27 +20,31 @@ export default function useChannelSearch() {
 
     const callFetch = async (query: string) => {
         await store.dispatch('fetchChannelByUsername', query);
-        setFilteredChannels(store.getters.channels.value);
     };
 
-    const searchAction = useCallback(async (query: string = "") => {
+    const searchAction = useCallback(async (query: string = "", update: boolean = false) => {
         setLoading(true);
 
-        if (query === '') {
-            setFilteredChannels(channels);
-        } else {
+        const finish = (data: Channel[]) => {
+            setFilteredChannels(data);
+            setLoading(false);
+        };
+
+        if (query !== '') {
             const filtered = channels.filter((channel) =>
                 channel.username.toLowerCase().includes(query.toLowerCase())
             );
 
-            if (filtered.length) {
-                setFilteredChannels(filtered);
-            } else {
-                await callFetch(query);
+            if (filtered.length && !update) {
+                finish(filtered);
+                return;
             }
+
+            await callFetch(query);
         }
 
-        setLoading(false);
+        finish(channels);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [channels]);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -60,12 +64,15 @@ export default function useChannelSearch() {
         const storedChannels = localStorage.getItem('channels');
         if (!storedChannels) return;
 
-        const parsedChannels = JSON.parse(storedChannels) as Channel[];
-        setFilteredChannels(parsedChannels);
+        // pre-init channels store
+        store.state.channels = JSON.parse(storedChannels) as Channel[];
     }
 
     const saveChannelsToStorage = () => {
         if (!channels.length) return;
+        if (channels.length > 10) {
+            store.state.channels = channels.slice(0, 10);
+        }
         localStorage.setItem('channels', JSON.stringify(channels));
     }
 
@@ -80,8 +87,8 @@ export default function useChannelSearch() {
     useEffect(() => saveChannelsToStorage(), [channels]);
 
     const handleAvatarError = async (username: string) => {
-        await searchAction(username);
-        setFilteredChannels(store.getters.channels.value);
+        await searchAction(username, true);
+        setFilteredChannels(channels);
     };
 
     return { searchQuery, filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction };
