@@ -17,22 +17,36 @@ interface State {
     channelsLoading: boolean;
 }
 
+interface FetchChannelByUsername {
+    username: string;
+    onErrorCallback?: () => void;
+}
+
 const store = createStore({
     state: {
         channels: [],
         channelsLoading: false,
     },
     actions: {
-        async fetchChannelByUsername({ state }: { state: State }, username: string) {
+        async fetchChannelByUsername({ state }: { state: State }, data: FetchChannelByUsername) {
             state.channelsLoading = true;
+            const username = data.username;
+            const onErrorCallback = data.onErrorCallback;
+
+            const validateResponse = (response: { channel: Channel; } | undefined) => {
+                if (!response) throw void 0;
+                if (!response.channel) throw void 0;
+
+                const newChannel = { ...response.channel, username, lastUpdated: Date.now() };
+                state.channels = state.channels.filter(channel => channel.username !== newChannel.username);
+                state.channels.unshift(newChannel);
+            }
+
             try {
                 const response = await apiService.get<{ channel: Channel }>(`preview/${username}`);
-                if (response && response.channel) {
-                    const newChannel = { ...response.channel, username, lastUpdated: Date.now() };
-                    state.channels = state.channels.filter(channel => channel.username !== newChannel.username);
-                    state.channels.unshift(newChannel);
-                }
+                validateResponse(response);
             } catch (error) {
+                if (onErrorCallback) onErrorCallback();
                 console.error('Error fetching channel by username:', error);
             } finally {
                 state.channelsLoading = false;

@@ -4,10 +4,10 @@ import ChannelList from './components/ChannelList';
 import useChannelSearch from './helpers/useChannelSearch';
 
 export default function Home() {
-    const { filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction } = useChannelSearch();
+    const { filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction, onPageBeforeRemove, onPageBeforeOut } = useChannelSearch();
 
     return (
-        <Page>
+        <Page onPageBeforeRemove={onPageBeforeRemove} onPageBeforeOut={onPageBeforeOut}>
             <Navbar title="Telegram View">
                 <Subnavbar inner={false}>
                     <Searchbar onChange={handleSearchChange} onClick={() => { searchAction().then() }} />

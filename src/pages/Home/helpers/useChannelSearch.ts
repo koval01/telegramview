@@ -1,5 +1,7 @@
 import {ChangeEvent, useCallback, useEffect, useRef, useState} from 'react';
 import store from '../../../store';
+import {Toast} from "framework7/types";
+import {f7} from "framework7-react";
 
 interface Channel {
     username: string;
@@ -10,16 +12,34 @@ interface Channel {
     is_verified: boolean;
 }
 
+interface UpdateChannel {
+    [username: string]: NodeJS.Timeout;
+}
+
 export default function useChannelSearch() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredChannels, setFilteredChannels] = useState<Channel[]>([]);
     const [loading, setLoading] = useState(false);
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-
+    const updateTimeout = useRef<UpdateChannel>({});
     const channels = store.state.channels as Channel[];
+    const toastCenter = useRef<Toast.Toast | null>(null);
+
+    const showToastCenter = (message: string) => {
+        if (!toastCenter.current) {
+            toastCenter.current = f7.toast.create({
+                text: message,
+                position: 'center',
+                closeTimeout: 2000,
+            });
+        }
+        toastCenter.current.open();
+    };
 
     const callFetch = async (query: string) => {
-        await store.dispatch('fetchChannelByUsername', query);
+        await store.dispatch('fetchChannelByUsername', {
+            username: query, onErrorCallback: () => showToastCenter(`Failed to fetch ${query}'s channel information`)
+        });
     };
 
     const filterChannels = (query: string, update: boolean) => {
@@ -94,8 +114,23 @@ export default function useChannelSearch() {
     useEffect(() => loadChannelsFromStorage(), []);
 
     const handleAvatarError = async (username: string) => {
-        await searchAction(username, true);
+        if (updateTimeout.current[username]) return;
+        const callUpdate = async () => await searchAction(username, true);
+
+        await callUpdate(); // call before timeout repeat
+        updateTimeout.current[username] = setTimeout(async () => {
+            await callUpdate();
+            delete updateTimeout.current[username];
+        }, 3000);
     };
 
-    return { searchQuery, filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction };
+    const onPageBeforeOut = () => {
+        // @ts-expect-error: In the documentation, this method is used without arguments
+        f7.toast.close();
+    };
+    const onPageBeforeRemove = () => {
+        if (toastCenter.current) toastCenter.current.destroy();
+    };
+
+    return { searchQuery, filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction, onPageBeforeOut, onPageBeforeRemove };
 }
