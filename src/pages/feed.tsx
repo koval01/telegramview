@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Toast } from "framework7/types";
-import { f7, Page, Navbar, NavTitle, NavRight, Block, Icon, Progressbar } from 'framework7-react';
+import {Toast} from "framework7/types";
+import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar} from 'framework7-react';
 import apiService from '../apiService';
 import VerifiedIcon from '../icons/VerifiedIcon';
 
@@ -125,6 +125,38 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D');
     };
 
+    const convertLinksToJSX = (text: string): React.ReactNode[] => {
+        const urlRegex = /\b((https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?)\b/g;
+        const parts = text.split(urlRegex);
+
+        return parts.map((part, index) => {
+            if (part?.match(urlRegex)) {
+                let href = part;
+                if (!href.match(/^https?:\/\//)) {
+                    href = 'https://' + href;
+                }
+                return (
+                    <Link key={index} href={href} target="_blank" external className="truncate max-w-32 inline-block align-bottom">{part}</Link>
+                );
+            }
+
+            return part;
+        });
+    };
+
+    const StringToHtml = ({ text }: { text: string }) => {
+        const lines = text.split('\n');
+
+        const elements = lines.map((line, index) => (
+            <React.Fragment key={index}>
+                {convertLinksToJSX(line)}
+                {index < lines.length - 1 && <br />}
+            </React.Fragment>
+        ));
+
+        return <div>{elements}</div>;
+    };
+
     return (
         <Page
             infinite
@@ -158,8 +190,9 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             <Block className="hidden select-none md:flex lg:px-64">
                 <div className="m-auto flex">
                     <div className="shrink-0">
-                    {channel.avatar ? (
-                            <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
+                        {channel.avatar ? (
+                            <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar"
+                                 draggable="false"/>
                         ) : (
                             <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
                         )}
@@ -171,7 +204,8 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                             </div>
                             {channel.labels?.includes("verified") && (
                                 <div>
-                                    <VerifiedIcon className="w-8 h-8 active:text-sky-300 active:scale-150 transition-all" />
+                                    <VerifiedIcon
+                                        className="w-8 h-8 active:text-sky-300 active:scale-150 transition-all"/>
                                 </div>
                             )}
                         </div>
@@ -192,21 +226,23 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             </Block>
 
             {!loading && (
-                <div className="md:mx-16 lg:mx-32 xl:mx-64 2xl:mx-[28vw] mt-8">
+                <div className="w-full md:max-w-[680px] lg:max-w-[860px] xl:max-w-[920px] 2xl:max-w-[1060px] p-0 mt-8 block m-auto">
                     {posts.map((post, index) => (
                         <div
                             key={index}
                             className={`px-4 ${post.forwarded ? 'py-6' : 'py-3'} bg-transparent first:border-none border-t border-solid border-neutral-700 relative active:bg-neutral-900 transition-colors duration-200`}
                         >
                             {post.forwarded && (
-                                <div className="flex absolute left-[3.25rem] top-1 select-none">
-                                    <Icon f7="arrow_turn_left_down" size="16px" className="text-neutral-400 top-1" />
-                                    <span className="text-neutral-400 ml-1">{post.forwarded.name}</span>
+                                <div className="flex absolute left-[3.25rem] top-1 select-none max-w-full">
+                                    <Icon f7="arrow_turn_left_down" size="16px" className="text-neutral-400 top-1"/>
+                                    <span
+                                        className="text-neutral-400 ml-1 inline-block truncate">{post.forwarded.name}</span>
                                 </div>
                             )}
                             <div className="flex">
                                 <div className="flex mr-2 shrink-0 relative top-1 select-none">
-                                    <img className="w-12 h-12 rounded-full" src={channel.avatar} alt="Avatar" draggable="false" />
+                                    <img className="w-12 h-12 rounded-full" src={channel.avatar} alt="Avatar"
+                                         draggable="false"/>
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center mb-2 select-none">
@@ -214,16 +250,17 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                             <div className="font-bold">{channel.title}</div>
                                             {channel.labels?.includes("verified") && (
                                                 <div>
-                                                    <VerifiedIcon className="w-5 h-5" />
+                                                    <VerifiedIcon className="w-5 h-5"/>
                                                 </div>
                                             )}
                                         </div>
                                         <span className="mr-1 text-neutral-400">{channel.username}</span>
                                         <span className="mr-1 text-neutral-400">·</span>
-                                        <span className="mr-1 text-neutral-400">{formatDate(post.footer.date.unix)}</span>
+                                        <span
+                                            className="mr-1 text-neutral-400">{formatDate(post.footer.date.unix)}</span>
                                     </div>
                                     <div className="mb-3">
-                                        {post.content?.text?.html && <div dangerouslySetInnerHTML={{ __html: post.content.text.html }} />}
+                                        {post.content?.text?.string && <StringToHtml text={post.content.text.string}/>}
                                         {post.content?.media && post.content.media.length > 0 &&
                                             post.content.media.map((media, mediaIndex) => (
                                                 <React.Fragment key={mediaIndex}>
@@ -231,7 +268,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                         <img
                                                             src={media.url}
                                                             alt="Media"
-                                                            className={`rounded-xl w-full ${post.content?.text?.html ? 'mt-2' : ''}`}
+                                                            className={`rounded-xl w-full ${post.content?.text?.string ? 'mt-2' : ''}`}
                                                             draggable="false"
                                                         />
                                                     )}
@@ -243,14 +280,14 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                             muted
                                                             preload="auto"
                                                         >
-                                                            <source src={media.url} type="video/mp4" />
-                                                            <track src={undefined} kind="captions" />
+                                                            <source src={media.url} type="video/mp4"/>
+                                                            <track src={undefined} kind="captions"/>
                                                             Your browser does not support the video element.
                                                         </video>
                                                     )}
                                                     {media.type === 'voice' && (
                                                         <audio controls>
-                                                            <source src={media.url} type="audio/ogg" />
+                                                            <source src={media.url} type="audio/ogg"/>
                                                             Your browser does not support the audio element.
                                                         </audio>
                                                     )}
@@ -264,10 +301,10 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                 </div>
                                                 {post.content.poll.options.map((option, optionIndex) => (
                                                     <div key={optionIndex} className="flex">
-                                                        <div className="font-bold mr-2 min-w-8">{option.percent}%</div>
+                                                        <div className="font-bold mr-2 min-w-10">{option.percent}%</div>
                                                         <div className="w-full">
                                                             <span className="text-neutral-100">{option.name}</span>
-                                                            <Progressbar progress={option.percent} />
+                                                            <Progressbar progress={option.percent}/>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -276,7 +313,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                         {post.footer?.author && (
                                             <div className="mt-2 flex gap-1 text-neutral-400 select-none">
                                                 <div>
-                                                    <Icon f7="person" size="12px" />
+                                                    <Icon f7="person" size="12px"/>
                                                 </div>
                                                 <div>{post.footer.author}</div>
                                             </div>
@@ -287,7 +324,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                     {post.footer.views && (
                                         <div className="flex gap-1 text-neutral-400">
                                             <div>
-                                                <Icon f7="eye_fill" size="14px" />
+                                                <Icon f7="eye_fill" size="14px"/>
                                             </div>
                                             <div className="text-sm">
                                                 {post.footer.views}

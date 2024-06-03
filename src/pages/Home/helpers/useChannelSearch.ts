@@ -117,7 +117,6 @@ export default function useChannelSearch() {
         if (updateTimeout.current[username]) return;
         const callUpdate = async () => await searchAction(username, true);
 
-        await callUpdate(); // call before timeout repeat
         updateTimeout.current[username] = setTimeout(async () => {
             await callUpdate();
             delete updateTimeout.current[username];
