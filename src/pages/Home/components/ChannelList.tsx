@@ -27,7 +27,7 @@ const ChannelList: React.FC<ChannelListProps> = ({ filteredChannels, loading, ha
                 </div>
             ) : filteredChannels.length === 0 ? (
                 <span className="text-neutral-400 text-center block m-auto mt-4">
-                    list is currently empty
+                    list is empty
                 </span>
             ) : (
                 <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
@@ -53,14 +53,18 @@ const ChannelList: React.FC<ChannelListProps> = ({ filteredChannels, loading, ha
                                 subtitle={channel.subscribers}
                                 text={channel.description}
                             >
-                                <img
-                                    src={channel.avatar}
-                                    alt={`${channel.title}'s avatar`}
-                                    className="icon w-12 h-12 rounded-full"
-                                    slot="media"
-                                    draggable="false"
-                                    onError={() => handleAvatarError(channel.username)}
-                                />
+                                {channel.avatar ? (
+                                    <img
+                                        src={channel.avatar}
+                                        alt={`${channel.title}'s avatar`}
+                                        className="icon w-12 h-12 rounded-full"
+                                        slot="media"
+                                        draggable="false"
+                                        onError={() => handleAvatarError(channel.username)}
+                                    />
+                                ) : (
+                                    <div className="w-12 h-12 rounded-full bg-neutral-500" slot="media"></div>
+                                )}
                             </ListItem>
                         )
                     })}

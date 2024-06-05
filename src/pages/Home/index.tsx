@@ -8,7 +8,7 @@ export default function Home() {
 
     return (
         <Page onPageBeforeRemove={onPageBeforeRemove} onPageBeforeOut={onPageBeforeOut}>
-            <Navbar title="Telegram View">
+            <Navbar title="Telegram View" className="select-none">
                 <Subnavbar inner={false}>
                     <Searchbar onChange={handleSearchChange} onClick={() => { searchAction().then() }} />
                 </Subnavbar>
