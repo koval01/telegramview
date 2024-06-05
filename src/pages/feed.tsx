@@ -5,6 +5,7 @@ import {Toast} from "framework7/types";
 import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar} from 'framework7-react';
 import apiService from '../apiService';
 import VerifiedIcon from '../icons/VerifiedIcon';
+import './feed.css';
 
 dayjs.extend(relativeTime);
 
@@ -126,7 +127,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     };
 
     const convertLinksToJSX = (text: string): React.ReactNode[] => {
-        const urlRegex = /\b((https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?)\b/g;
+        const urlRegex = /(https?:\/\/\S+)/g;
         const parts = text.split(urlRegex);
 
         return parts.map((part, index) => {
@@ -136,7 +137,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                     href = 'https://' + href;
                 }
                 return (
-                    <Link key={index} href={href} target="_blank" external className="truncate max-w-32 inline-block align-bottom">{part}</Link>
+                    <Link key={index} href={href} target="_blank" external className="truncate min-w-32 max-w-72 inline-block align-bottom text-blue-500">{part}</Link>
                 );
             }
 
@@ -245,22 +246,53 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                          draggable="false"/>
                                 </div>
                                 <div className="flex-1">
-                                    <div className="flex items-center mb-2 select-none">
-                                        <div className="mr-1 flex gap-0.5">
-                                            <div className="font-bold">{channel.title}</div>
-                                            {channel.labels?.includes("verified") && (
-                                                <div>
-                                                    <VerifiedIcon className="w-5 h-5"/>
-                                                </div>
-                                            )}
+                                    <div className="flex items-center mb-2 select-none w-full">
+                                        <div className="flex-row max-w-full shrink items-center t-container">
+                                            <div className="max-w-full shrink t-container">
+                                                <Link href={`/${channel.username?.slice(1)}`} className="max-w-full shrink outline-none cursor-pointer t-container">
+                                                    <div className="flex-row max-w-full shrink items-center t-container">
+                                                        <div className="leading-5 min-w-0 font-bold text-base whitespace-nowrap flex overflow-x-hidden overflow-y-hidden t-container">
+                                                            <span className="max-w-full min-w-0 whitespace-nowrap overflow-x-hidden overflow-y-hidden t-container">
+                                                                <span className="min-w-0 whitespace-nowrap t-container">
+                                                                    {channel.title}
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                        <div className="leading-5 shrink-0 min-w-0 text-base font-normal flex-row inline-flex t-container">
+                                                            <span className="min-w-0 items-center inline-flex t-container">
+                                                                <VerifiedIcon className="w-5 h-5 relative ml-0.5 inline-block t-container"/>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            </div>
                                         </div>
-                                        <span className="mr-1 text-neutral-400">{channel.username}</span>
-                                        <span className="mr-1 text-neutral-400">·</span>
-                                        <span
-                                            className="mr-1 text-neutral-400">{formatDate(post.footer.date.unix)}</span>
+                                        <div className="flex-row max-w-full shrink items-center t-container ml-1">
+                                            <div className="items-baseline shrink flex-row t-container">
+                                                <div className="max-w-full shrink t-container">
+                                                    <Link className="max-w-full shrink cursor-pointer outline-none" href={`/${channel.username?.slice(1)}`}>
+                                                        <div className="text-neutral-400 max-w-full min-w-0 whitespace-nowrap overflow-x-hidden overflow-y-hidden t-container text-sm text-clip font-normal">
+                                                            <span className="text-clip t-container min-w-0">
+                                                                {channel.username}
+                                                            </span>
+                                                        </div>
+                                                    </Link>
+                                                </div>
+                                                <div className="text-neutral-400 text-sm shrink leading-5 px-1 min-w-0 t-container">
+                                                    <span className="min-w-0 t-container">
+                                                        ·
+                                                    </span>
+                                                </div>
+                                                <div className="shrink-0 flex-row t-container">
+                                                    <Link className="text-neutral-400 text-sm font-normal gap-1 flex-wrap shrink-0 leading-5 min-w-0 cursor-pointer inline-flex" href={`/${channel.username?.slice(1)}`}>
+                                                        <time>{formatDate(post.footer.date.unix)}</time>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="mb-3">
-                                        {post.content?.text?.string && <StringToHtml text={post.content.text.string}/>}
+                                        {post.content?.text?.string && <StringToHtml text={post.content.text.string} />}
                                         {post.content?.media && post.content.media.length > 0 &&
                                             post.content.media.map((media, mediaIndex) => (
                                                 <React.Fragment key={mediaIndex}>
