@@ -4,7 +4,7 @@ import { blockContextMenu, detectDevTools, removeContextMenuBlock, removeDevTool
 import { App, View } from 'framework7-react'
 
 import Home from './pages/Home'
-import Feed from './pages/feed.tsx'
+import Feed from './pages/Feed'
 
 const f7params = {
     name: 'Telegram',

@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {Toast} from "framework7/types";
 import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar} from 'framework7-react';
-import apiService from '../apiService';
-import VerifiedIcon from '../icons/VerifiedIcon';
+import apiService from '../../apiService.ts';
+import VerifiedIcon from '../../icons/VerifiedIcon.tsx';
 import './feed.css';
 
 dayjs.extend(relativeTime);
