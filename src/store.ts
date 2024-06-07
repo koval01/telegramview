@@ -15,10 +15,12 @@ interface State {
     state: Channel;
     channels: Channel[];
     channelsLoading: boolean;
+    channelsError: boolean;
 }
 
 interface FetchChannelByUsername {
     username: string;
+    onCallback?: () => void;
     onErrorCallback?: () => void;
 }
 
@@ -26,12 +28,16 @@ const store = createStore({
     state: {
         channels: [],
         channelsLoading: false,
+        channelsError: false,
     },
     actions: {
         async fetchChannelByUsername({ state }: { state: State }, data: FetchChannelByUsername) {
             state.channelsLoading = true;
+            state.channelsError = false;
+
             const username = data.username;
             const onErrorCallback = data.onErrorCallback;
+            const onCallback = data.onCallback;
 
             const validateResponse = (response: { channel: Channel; } | undefined) => {
                 if (!response) throw void 0;
@@ -46,10 +52,13 @@ const store = createStore({
                 const response = await apiService.get<{ channel: Channel }>(`preview/${username}`);
                 validateResponse(response);
             } catch (error) {
+                state.channelsError = true;
                 if (onErrorCallback) onErrorCallback();
                 console.error('Error fetching channel by username:', error);
             } finally {
+                if (onCallback && !state.channelsError) onCallback();
                 state.channelsLoading = false;
+                state.channelsError = false;
             }
         },
     },

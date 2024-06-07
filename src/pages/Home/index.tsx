@@ -1,7 +1,7 @@
 import { Page, Navbar, Subnavbar } from 'framework7-react';
 import Searchbar from './components/Searchbar';
 import ChannelList from './components/ChannelList';
-import useChannelSearch from './helpers/useChannelSearch';
+import useChannelSearch from './helpers/useChannelSearch/hook';
 
 export default function Home() {
     const { filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction, onPageBeforeRemove, onPageBeforeOut } = useChannelSearch();
