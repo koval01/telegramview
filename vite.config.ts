@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { chunkSplitPlugin } from 'vite-plugin-chunk-split'
 
 export default defineConfig({
   plugins: [
       react(),
+      chunkSplitPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'inline',
@@ -29,22 +31,6 @@ export default defineConfig({
               "type": "image/png"
             }
           ],
-          // "screenshots": [{
-          //   "src": "/meta/screenshots/screen1.jpg",
-          //   "sizes": "1280x1966",
-          //   "type": "image/jpeg"
-          // },
-          //   {
-          //     "src": "/meta/screenshots/screen2.jpg",
-          //     "sizes": "1280x1966",
-          //     "type": "image/jpeg"
-          //   },
-          //   {
-          //     "src": "/meta/screenshots/screen3.jpg",
-          //     "sizes": "1280x1966",
-          //     "type": "image/jpeg"
-          //   }
-          // ],
           "theme_color": "#000000",
           "background_color": "#000000",
           "display": "standalone"
