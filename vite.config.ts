@@ -1,14 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import { chunkSplitPlugin } from 'vite-plugin-chunk-split'
 
 export default defineConfig({
   plugins: [
       react(),
-      chunkSplitPlugin({
-        strategy: 'unbundle'
-      }),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'inline',
