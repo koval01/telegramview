@@ -217,7 +217,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                 {Object.entries(channel.counters).map(([key, value]) => (
                                     <div className="mr-4" key={key}>
                                         <div className="text-lg font-bold">{value}</div>
-                                        <div className="text-neutral-500 text-sm">{key}</div>
+                                        <div className="text-neutral-300 text-sm">{key}</div>
                                     </div>
                                 ))}
                             </div>
