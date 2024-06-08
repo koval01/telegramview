@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 import {Toast} from "framework7/types";
 import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar} from 'framework7-react';
 import apiService from '../../apiService.ts';
@@ -8,6 +9,19 @@ import VerifiedIcon from '../../icons/VerifiedIcon.tsx';
 import './feed.css';
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+
+dayjs.updateLocale('en', {
+    relativeTime: {
+        past: "%s",
+        s: '1s',
+        ss: '%ds',
+        m: "1m",
+        mm: "%dm",
+        h: "1h",
+        hh: "%dh",
+    }
+});
 
 interface Post {
     id: number;
@@ -127,7 +141,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     };
 
     const convertLinksToJSX = (text: string): React.ReactNode[] => {
-        const urlRegex = /(https?:\/\/\S+)/g;
+        const urlRegex = /(\bhttps?:\/\/\S+\b|\b\S+\.\S+\b)/g;
         const parts = text.split(urlRegex);
 
         return parts.map((part, index) => {
@@ -137,7 +151,9 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                     href = 'https://' + href;
                 }
                 return (
-                    <Link key={index} href={href} target="_blank" external className="truncate min-w-32 max-w-72 inline-block align-bottom text-blue-500">{part}</Link>
+                    <Link key={index} href={href} target="_blank" external
+                          className="truncate min-w-0 max-w-40 md:max-w-64 lg:max-w-96 inline-block align-bottom text-blue-500">
+                        {part}</Link>
                 );
             }
 
