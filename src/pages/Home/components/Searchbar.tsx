@@ -6,15 +6,13 @@ interface SearchbarProps {
     onClick: () => void;
 }
 
-const CustomSearchbar: React.FC<SearchbarProps> = ({ onChange, onClick }) => {
-    return (
-        <Searchbar
-            onChange={onChange}
-            onClickClear={onClick}
-            onClickDisable={onClick}
-            customSearch
-        />
-    );
-};
+const CustomSearchbar: React.FC<SearchbarProps> = ({ onChange, onClick }) => (
+    <Searchbar
+        onChange={onChange}
+        onClickClear={onClick}
+        onClickDisable={onClick}
+        customSearch
+    />
+);
 
 export default CustomSearchbar;

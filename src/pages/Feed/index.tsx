@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import {Toast} from "framework7/types";
-import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar} from 'framework7-react';
+import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar, Popup, View} from 'framework7-react';
 import apiService from '../../apiService.ts';
 import VerifiedIcon from '../../icons/VerifiedIcon.tsx';
 import './feed.css';
@@ -23,10 +23,22 @@ dayjs.updateLocale('en', {
     }
 });
 
+interface Forwarded {
+    name: string;
+}
+
+interface Footer {
+    date: {
+        unix: number
+    };
+    views: number;
+    author?: string
+}
+
 interface Post {
     id: number;
-    forwarded?: { name: string };
-    footer: { date: { unix: number }; views: number; author?: string };
+    forwarded?: Forwarded;
+    footer: Footer;
     content?: {
         text?: { html: string; string: string };
         media?: Array<{ type: string; url: string; thumb?: string }>;
@@ -59,6 +71,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const [loading, setLoading] = useState(true);
     const [allowInfinite, setAllowInfinite] = useState(true);
     const [showPreloader, setShowPreloader] = useState(false);
+    const [popupOpened, setPopupOpened] = useState(false);
 
     const toastCenter = useRef<Toast.Toast | null>(null);
 
@@ -84,7 +97,8 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
 
         setTimeout(async () => {
             try {
-                const response = await apiService.get<{ posts: Post[] }>(`more/${channelId}/before/${lastPostId}`);
+                const response = await apiService.get<{ posts: Post[] }>(
+                    `more/${channelId}/before/${lastPostId}`);
                 if (response) {
                     setPosts((prevPosts) => [...prevPosts, ...response.posts.reverse()]);
                 }
@@ -100,11 +114,16 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await apiService.get<{ channel: Channel; content: { posts: Post[] } }>(`body/${channelId}`, {
-                params: {
-                    position: postId
+            const response = await apiService.get<{
+                channel: Channel;
+                content: { posts: Post[] }
+            }>(`body/${channelId}`,
+                {
+                    params: {
+                        position: postId
+                    }
                 }
-            });
+            );
             if (response) {
                 setChannel(response.channel);
                 setPosts(response.content.posts.reverse());
@@ -151,9 +170,11 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                     href = 'https://' + href;
                 }
                 return (
-                    <Link key={index} href={href} target="_blank" external
-                          className="truncate min-w-0 max-w-40 md:max-w-64 lg:max-w-96 inline-block align-bottom text-blue-500">
-                        {part}</Link>
+                    <Link key={index} href={href} target="_blank" external className={
+                        "truncate min-w-0 max-w-40 md:max-w-64 lg:max-w-96" +
+                        "inline-block align-bottom text-blue-500"}>
+                        {part}
+                    </Link>
                 );
             }
 
@@ -174,6 +195,114 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         return <div>{elements}</div>;
     };
 
+    const ChannelTitle = ({ title, labels, icon }: { title: string, labels?: string[], icon?: React.JSX.Element }) => (
+        <React.Fragment>
+            <div>{title}</div>
+            {labels && labels.includes("verified") && (
+                <div>
+                    {icon ? icon : (
+                        <VerifiedIcon
+                            className="w-8 h-8 active:text-sky-300 active:scale-150 transition-all" />
+                    )}
+                </div>
+            )}
+        </React.Fragment>
+    );
+
+    const Profile = ({ channel }: { channel: Channel }) => (
+        <div className="m-auto flex select-none">
+            <ProfileAvatar avatar={channel.avatar}/>
+            <div className="ml-3 w-full">
+                <div className="text-2xl font-extrabold flex gap-1">
+                    <ChannelTitle title={channel.title || channelId} labels={channel.labels} />
+                </div>
+                <ProfileDescription username={channel.username} description={channel.description} />
+                <ProfileCounters counters={channel.counters} />
+            </div>
+        </div>
+    );
+
+    const ProfileAvatar = ({avatar}: { avatar: string | undefined }) => (
+        <div className="shrink-0">
+            {avatar ? (
+                <img className="w-24 h-24 rounded-full" src={avatar} alt="Avatar"
+                     draggable="false"/>
+            ) : (
+                <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
+            )}
+        </div>
+    );
+
+    const ProfileDescription = (
+        { username, description }: {
+            username: string | undefined,
+            description: string | undefined
+        }) => (
+        <React.Fragment>
+            <div className="text-lg text-neutral-400">{username || ''}</div>
+            <div className="text-sm mt-3">{description || ''}</div>
+        </React.Fragment>
+    );
+
+    const ProfileCounters = (
+        {counters}: {
+            counters: Record<string, number> | undefined
+        }) => (
+        <React.Fragment>
+            {counters && (
+                <div className="flex mt-2 gap-2">
+                    {Object.entries(counters).map(([key, value]) => (
+                        <div className="mr-4" key={key}>
+                            <div className="text-lg font-bold">{value}</div>
+                            <div className="text-neutral-300 text-sm">{key}</div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </React.Fragment>
+    );
+
+    const Forwarded = ({ forwarded }: { forwarded: Forwarded | undefined }) => (
+        <React.Fragment>
+            {forwarded && (
+                <div className="flex absolute left-[3.25rem] top-1 select-none max-w-full">
+                    <Icon f7="arrow_turn_left_down" size="16px" className="text-neutral-400 top-1"/>
+                    <span className="text-neutral-400 ml-1 inline-block truncate">
+                        {forwarded.name}
+                    </span>
+                </div>
+            )}
+        </React.Fragment>
+    );
+
+    const PostFooter = ({ footer }: { footer: Footer }) => (
+        <React.Fragment>
+            {footer.views && (
+                <div className="flex gap-1 text-neutral-400">
+                    <div>
+                        <Icon f7="eye_fill" size="14px"/>
+                    </div>
+                    <div className="text-sm">
+                        {footer.views}
+                    </div>
+                </div>
+            )}
+        </React.Fragment>
+    );
+
+    const Author = ({ author }: { author: string | undefined }) => (
+      <React.Fragment>
+          {author && (
+              <div className="mt-2 flex gap-1 text-neutral-400 select-none">
+                  <div>
+                      <Icon f7="person" size="12px"/>
+                  </div>
+                  <div>{author}</div>
+              </div>
+          )}
+      </React.Fragment>
+    );
+
     return (
         <Page
             infinite
@@ -187,59 +316,49 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             onPageBeforeOut={onPageBeforeOut}
         >
             <Navbar className="!select-none" backLink="Back">
-                <NavTitle subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
-                    <div className="flex gap-0.5">
-                        <div>{channel.title || channelId}</div>
-                        {channel.labels?.includes("verified") && (
-                            <div>
-                                <VerifiedIcon className="w-5 h-5"/>
-                            </div>
-                        )}
-                    </div>
-                </NavTitle>
-                <NavRight>
-                    {channel.avatar &&
-                        <img className="w-8 h-8 rounded-full" src={channel.avatar} alt="Avatar" draggable="false"/>
-                    }
-                </NavRight>
+                <div className="contents" onClick={() => setPopupOpened(true)}>
+                    <NavTitle
+                        subtitle={channel.counters?.subscribers ? `${channel.counters.subscribers} subscribers` : ''}>
+                        <div className="flex gap-0.5">
+                            <ChannelTitle title={channel.title || channelId} labels={channel.labels} icon={(
+                                <VerifiedIcon className="w-5 h-5" />
+                            )} />
+                        </div>
+                    </NavTitle>
+                    <NavRight>
+                        {channel.avatar &&
+                            <img
+                                className="w-8 h-8 rounded-full"
+                                src={channel.avatar}
+                                alt="Avatar"
+                                draggable="false" />
+                        }
+                    </NavRight>
+                </div>
             </Navbar>
 
-            <Block className="hidden select-none md:flex lg:px-64">
-                <div className="m-auto flex">
-                    <div className="shrink-0">
-                        {channel.avatar ? (
-                            <img className="w-24 h-24 rounded-full" src={channel.avatar} alt="Avatar"
-                                 draggable="false"/>
-                        ) : (
-                            <div className="w-24 h-24 rounded-full bg-neutral-500"></div>
-                        )}
-                    </div>
-                    <div className="ml-3 w-full">
-                        <div className="text-2xl font-extrabold flex gap-1">
-                            <div>
-                                {channel.title || channelId}
-                            </div>
-                            {channel.labels?.includes("verified") && (
-                                <div>
-                                    <VerifiedIcon
-                                        className="w-8 h-8 active:text-sky-300 active:scale-150 transition-all"/>
-                                </div>
-                            )}
-                        </div>
-                        <div className="text-lg text-neutral-400">{channel.username || ''}</div>
-                        <div className="text-sm mt-3">{channel.description || ''}</div>
-                        {channel.counters && (
-                            <div className="flex mt-4">
-                                {Object.entries(channel.counters).map(([key, value]) => (
-                                    <div className="mr-4" key={key}>
-                                        <div className="text-lg font-bold">{value}</div>
-                                        <div className="text-neutral-300 text-sm">{key}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
+            <Popup
+                push
+                className="profile-info-popup"
+                opened={popupOpened}
+                onPopupClosed={() => setPopupOpened(false)}
+            >
+                <View>
+                    <Page>
+                        <Navbar title="Channel profile" large transparent>
+                            <NavRight>
+                                <Link popupClose>Close</Link>
+                            </NavRight>
+                        </Navbar>
+                        <Block className="flex">
+                            <Profile channel={channel} />
+                        </Block>
+                    </Page>
+                </View>
+            </Popup>
+
+            <Block className="hidden lg:flex">
+                <Profile channel={channel} />
             </Block>
 
             {!loading && (
@@ -249,13 +368,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                             key={index}
                             className={`px-4 ${post.forwarded ? 'py-6' : 'py-3'} bg-transparent first:border-none border-t border-solid border-neutral-700 relative active:bg-neutral-900 transition-colors duration-200`}
                         >
-                            {post.forwarded && (
-                                <div className="flex absolute left-[3.25rem] top-1 select-none max-w-full">
-                                    <Icon f7="arrow_turn_left_down" size="16px" className="text-neutral-400 top-1"/>
-                                    <span
-                                        className="text-neutral-400 ml-1 inline-block truncate">{post.forwarded.name}</span>
-                                </div>
-                            )}
+                            <Forwarded forwarded={post.forwarded} />
                             <div className="flex">
                                 <div className="flex mr-2 shrink-0 relative top-1 select-none">
                                     <img className="w-12 h-12 rounded-full" src={channel.avatar} alt="Avatar"
@@ -358,27 +471,11 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                                 ))}
                                             </div>
                                         )}
-                                        {post.footer?.author && (
-                                            <div className="mt-2 flex gap-1 text-neutral-400 select-none">
-                                                <div>
-                                                    <Icon f7="person" size="12px"/>
-                                                </div>
-                                                <div>{post.footer.author}</div>
-                                            </div>
-                                        )}
+                                        <Author author={post.footer.author} />
                                     </div>
                                 </div>
                                 <div className="select-none">
-                                    {post.footer.views && (
-                                        <div className="flex gap-1 text-neutral-400">
-                                            <div>
-                                                <Icon f7="eye_fill" size="14px"/>
-                                            </div>
-                                            <div className="text-sm">
-                                                {post.footer.views}
-                                            </div>
-                                        </div>
-                                    )}
+                                    <PostFooter footer={post.footer} />
                                 </div>
                             </div>
                         </div>
