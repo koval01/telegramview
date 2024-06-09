@@ -15,6 +15,7 @@ interface State {
     state: Channel;
     channels: Channel[];
     channelsLoading: boolean;
+    channelsUpdate: boolean;
     channelsError: boolean;
 }
 
@@ -24,10 +25,17 @@ interface FetchChannelByUsername {
     onErrorCallback?: () => void;
 }
 
+interface FetchChannels {
+    usernames: string[];
+    onCallback?: () => void;
+    onErrorCallback?: () => void;
+}
+
 const store = createStore({
     state: {
         channels: [],
         channelsLoading: false,
+        channelsUpdate: false,
         channelsError: false,
     },
     actions: {
@@ -35,30 +43,38 @@ const store = createStore({
             state.channelsLoading = true;
             state.channelsError = false;
 
-            const username = data.username;
-            const onErrorCallback = data.onErrorCallback;
-            const onCallback = data.onCallback;
-
-            const validateResponse = (response: { channel: Channel; } | undefined) => {
-                if (!response) throw void 0;
-                if (!response.channel) throw void 0;
-
-                const newChannel = { ...response.channel, username, lastUpdated: Date.now() };
-                state.channels = state.channels.filter(channel => channel.username !== newChannel.username);
-                state.channels.unshift(newChannel);
+            try {
+                const response = await apiService.get<{ channel: Channel }>(
+                    `preview/${data.username}`);
+                if (!response)
+                    return;
+                validateResponse(state, { ...response.channel, username: data.username });
+                if (data.onCallback) data.onCallback();
+            } catch (error) {
+                handleError(state, data.onErrorCallback, error);
+            } finally {
+                state.channelsLoading = false;
             }
+        },
+
+        async fetchChannels({ state }: { state: State }, data: FetchChannels) {
+            state.channelsLoading = state.channelsUpdate = true;
+            state.channelsError = false;
 
             try {
-                const response = await apiService.get<{ channel: Channel }>(`preview/${username}`);
-                validateResponse(response);
+                const response =
+                    await apiService.post<Record<string, { channel: Channel }>>(
+                        'previews', data.usernames);
+                for (const username in response) {
+                    if (Object.prototype.hasOwnProperty.call(response, username)) {
+                        validateResponse(state, { ...response[username].channel, username });
+                    }
+                }
+                if (data.onCallback) data.onCallback();
             } catch (error) {
-                state.channelsError = true;
-                if (onErrorCallback) onErrorCallback();
-                console.error('Error fetching channel by username:', error);
+                handleError(state, data.onErrorCallback, error);
             } finally {
-                if (onCallback && !state.channelsError) onCallback();
-                state.channelsLoading = false;
-                state.channelsError = false;
+                state.channelsLoading = state.channelsUpdate = false;
             }
         },
     },
@@ -67,5 +83,17 @@ const store = createStore({
         channelsLoading: ({ state }: { state: State }) => state.channelsLoading,
     },
 });
+
+const validateResponse = (state: State, newChannel: Channel) => {
+    newChannel.lastUpdated = Date.now();
+    state.channels = state.channels.filter(channel => channel.username !== newChannel.username);
+    state.channels.unshift(newChannel);
+}
+
+const handleError = (state: State, onErrorCallback: (() => void) | undefined, error: unknown) => {
+    state.channelsError = true;
+    if (onErrorCallback) onErrorCallback();
+    console.error('Error fetching channels:', error);
+}
 
 export default store;

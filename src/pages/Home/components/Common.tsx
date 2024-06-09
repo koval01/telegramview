@@ -10,7 +10,7 @@ interface AvatarProps {
 
 const Loader = () => (
     <div className="mt-8">
-        <Preloader size={36} className="block m-auto"/>
+        <Preloader size={42} color="white" className="block m-auto"/>
     </div>
 );
 

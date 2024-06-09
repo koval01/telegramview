@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import store from '../../../../store';
 import { Channel } from './types';
 import { useToast } from './toastManagement';
@@ -67,7 +67,7 @@ export function useSearchLogic() {
 
         debounceTimeout.current = setTimeout(() => {
             searchAction(query).then();
-        }, 600);
+        }, 800);
     };
 
     return { searchQuery, filteredChannels, loading, handleSearchChange, searchAction };

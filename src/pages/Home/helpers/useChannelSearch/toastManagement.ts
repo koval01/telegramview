@@ -18,3 +18,8 @@ export function useToast() {
 
     return { showToastCenter, toastCenter };
 }
+
+export const openDialogLoading = () => {
+    f7.dialog.preloader();
+    return () => f7.dialog.close();
+};

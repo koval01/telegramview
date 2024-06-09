@@ -18,46 +18,45 @@ interface ChannelListProps {
     handleAvatarError: (username: string) => void;
 }
 
-const ChannelList: React.FC<ChannelListProps> = ({filteredChannels, loading, handleAvatarError}) => {
-    return (
-        <>
-            {loading || store.state.channelsLoading ? (
-                <Loader/>
-            ) : filteredChannels.length === 0 ? (
-                <Empty/>
-            ) : (
-                <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
-                    {filteredChannels.map((channel) => {
-                        return (
-                            <ListItem
-                                link={`/${channel.username}`}
-                                key={channel.username}
-                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-ignore
-                                title={<Title title={channel.title} isVerified={channel.is_verified} />}
-                                after={`@${channel.username}`}
-                                subtitle={channel.subscribers}
-                                text={channel.description}
-                            >
-                                <div slot="media">
-                                    {channel.avatar ? (
-                                        <Avatar
-                                            avatar={channel.avatar}
-                                            title={channel.title}
-                                            username={channel.username}
-                                            onError={handleAvatarError}
-                                        />
-                                    ) : (
-                                        <AvatarSkeleton />
-                                    )}
-                                </div>
-                            </ListItem>
-                        )
-                    })}
-                </List>
-            )}
-        </>
-    );
-};
+const ChannelList: React.FC<ChannelListProps> = ({filteredChannels, loading, handleAvatarError}) =>
+(
+    <>
+        {loading || store.state.channelsLoading && !store.state.channelsUpdate ? (
+            <Loader/>
+        ) : filteredChannels.length === 0 ? (
+            <Empty/>
+        ) : (
+            <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
+                {filteredChannels.map((channel) => {
+                    return (
+                        <ListItem
+                            link={`/${channel.username}`}
+                            key={channel.username}
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            title={<Title title={channel.title} isVerified={channel.is_verified} />}
+                            after={`@${channel.username}`}
+                            subtitle={channel.subscribers}
+                            text={channel.description}
+                        >
+                            <div slot="media">
+                                {channel.avatar ? (
+                                    <Avatar
+                                        avatar={channel.avatar}
+                                        title={channel.title}
+                                        username={channel.username}
+                                        onError={handleAvatarError}
+                                    />
+                                ) : (
+                                    <AvatarSkeleton />
+                                )}
+                            </div>
+                        </ListItem>
+                    )
+                })}
+            </List>
+        )}
+    </>
+);
 
 export default ChannelList;
