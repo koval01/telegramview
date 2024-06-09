@@ -1,35 +1,7 @@
 import { createStore } from 'framework7/lite';
 import apiService from './apiService';
 
-interface Channel {
-    username: string;
-    title: string;
-    description: string;
-    avatar: string;
-    subscribers: string;
-    is_verified: boolean;
-    lastUpdated: number;
-}
-
-interface State {
-    state: Channel;
-    channels: Channel[];
-    channelsLoading: boolean;
-    channelsUpdate: boolean;
-    channelsError: boolean;
-}
-
-interface FetchChannelByUsername {
-    username: string;
-    onCallback?: () => void;
-    onErrorCallback?: () => void;
-}
-
-interface FetchChannels {
-    usernames: string[];
-    onCallback?: () => void;
-    onErrorCallback?: () => void;
-}
+import { FetchChannelByUsername, FetchChannels, State, Channel, validateResponse, handleError } from './helpers';
 
 const store = createStore({
     state: {
@@ -83,17 +55,5 @@ const store = createStore({
         channelsLoading: ({ state }: { state: State }) => state.channelsLoading,
     },
 });
-
-const validateResponse = (state: State, newChannel: Channel) => {
-    newChannel.lastUpdated = Date.now();
-    state.channels = state.channels.filter(channel => channel.username !== newChannel.username);
-    state.channels.unshift(newChannel);
-}
-
-const handleError = (state: State, onErrorCallback: (() => void) | undefined, error: unknown) => {
-    state.channelsError = true;
-    if (onErrorCallback) onErrorCallback();
-    console.error('Error fetching channels:', error);
-}
 
 export default store;
