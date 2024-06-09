@@ -20,6 +20,7 @@ dayjs.updateLocale('en', {
         mm: "%dm",
         h: "1h",
         hh: "%dh",
+        d: "1d"
     }
 });
 
@@ -156,7 +157,6 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const formatDate = (unixTimestamp: number) => {
         const date = dayjs.unix(unixTimestamp);
         const now = dayjs();
-        console.log(date.fromNow())
         return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D');
     };
 
@@ -172,7 +172,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                 }
                 return (
                     <Link key={index} href={href} target="_blank" external className={
-                        "truncate min-w-0 max-w-40 md:max-w-64 lg:max-w-96" +
+                        "truncate inline-block min-w-0 max-w-40 md:max-w-64 lg:max-w-96" +
                         "inline-block align-bottom text-blue-500"}>
                         {part}
                     </Link>
