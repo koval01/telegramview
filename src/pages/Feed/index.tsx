@@ -156,6 +156,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const formatDate = (unixTimestamp: number) => {
         const date = dayjs.unix(unixTimestamp);
         const now = dayjs();
+        console.log(date.fromNow())
         return now.diff(date, 'hour') < 24 ? date.fromNow() : date.format('MMM D');
     };
 
