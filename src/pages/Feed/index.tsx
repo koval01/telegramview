@@ -3,10 +3,22 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import {Toast} from "framework7/types";
-import {Block, f7, Icon, Link, Navbar, NavRight, NavTitle, Page, Progressbar, Popup, View} from 'framework7-react';
-import apiService from '../../apiService.ts';
-import VerifiedIcon from '../../icons/VerifiedIcon.tsx';
+import apiService from '../../apiService';
+import VerifiedIcon from '../../icons/VerifiedIcon';
 import './feed.css';
+import {
+    f7,
+    Page,
+    View,
+    Block,
+    Icon,
+    Link,
+    Navbar,
+    NavRight,
+    NavTitle,
+    Progressbar,
+    Popup,
+} from 'framework7-react';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);

@@ -40,4 +40,6 @@ const handleError = (state: State, onErrorCallback: (() => void) | undefined, er
     console.error('Error fetching channels:', error);
 }
 
-export { validateResponse, handleError };
+const callError = () => { throw void 0 };
+
+export { validateResponse, handleError, callError };

@@ -6,7 +6,14 @@ import { usePageLifecycleManagement } from './pageLifecycleManagement';
 import { loadChannelsFromStorage, saveChannelsToStorage } from './storageManagement';
 
 export default function useChannelSearch() {
-    const { searchQuery, filteredChannels, loading, handleSearchChange, searchAction } = useSearchLogic();
+    const {
+        searchQuery,
+        filteredChannels,
+        loading,
+        handleSearchChange,
+        searchAction
+    } = useSearchLogic();
+
     const { handleAvatarError } = useAvatarErrorHandling();
     const { onPageBeforeOut, onPageBeforeRemove } = usePageLifecycleManagement();
     const channels = store.state.channels;
@@ -19,5 +26,14 @@ export default function useChannelSearch() {
 
     useEffect(() => loadChannelsFromStorage(), []);
 
-    return { searchQuery, filteredChannels, loading, handleSearchChange, handleAvatarError, searchAction, onPageBeforeOut, onPageBeforeRemove };
+    return {
+        searchQuery,
+        filteredChannels,
+        loading,
+        handleSearchChange,
+        handleAvatarError,
+        searchAction,
+        onPageBeforeOut,
+        onPageBeforeRemove
+    };
 }

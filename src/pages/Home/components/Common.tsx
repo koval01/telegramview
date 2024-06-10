@@ -1,5 +1,5 @@
 import {Preloader} from "framework7-react";
-import VerifiedIcon from "../../../icons/VerifiedIcon.tsx";
+import VerifiedIcon from "../../../icons/VerifiedIcon";
 
 interface AvatarProps {
     avatar: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { List, ListItem } from 'framework7-react';
 import { Loader, Empty, Title, Avatar, AvatarSkeleton } from './Common';
-import store from "../../../store.ts";
+import store from "../../../store";
 
 interface Channel {
     username: string;
@@ -25,7 +25,7 @@ const ChannelList: React.FC<ChannelListProps> = ({filteredChannels, loading, han
             <Loader/>
         ) : filteredChannels.length === 0 ? (
             <Empty/>
-        ) : (
+        ) : !store.state.channelsUpdate && (
             <List strongIos outlineIos dividersIos mediaList className="search-list searchbar-found">
                 {filteredChannels.map((channel) => {
                     return (

@@ -1,4 +1,4 @@
-import { useToast } from './toastManagement';
+import { useToast } from '../useToast/hook';
 import { f7 } from "framework7-react";
 
 export function usePageLifecycleManagement() {

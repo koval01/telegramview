@@ -1,7 +1,15 @@
 import { createStore } from 'framework7/lite';
 import apiService from './apiService';
 
-import { FetchChannelByUsername, FetchChannels, State, Channel, validateResponse, handleError } from './helpers';
+import {
+    FetchChannelByUsername,
+    FetchChannels,
+    State,
+    Channel,
+    validateResponse,
+    handleError,
+    callError
+} from './helpers';
 
 const store = createStore({
     state: {
@@ -18,8 +26,11 @@ const store = createStore({
             try {
                 const response = await apiService.get<{ channel: Channel }>(
                     `preview/${data.username}`);
-                if (!response)
+                if (!response) {
+                    callError();
                     return;
+                }
+
                 validateResponse(state, { ...response.channel, username: data.username });
                 if (data.onCallback) data.onCallback();
             } catch (error) {
@@ -37,6 +48,8 @@ const store = createStore({
                 const response =
                     await apiService.post<Record<string, { channel: Channel }>>(
                         'previews', data.usernames);
+                if (!response) callError();
+
                 for (const username in response) {
                     if (Object.prototype.hasOwnProperty.call(response, username)) {
                         validateResponse(state, { ...response[username].channel, username });

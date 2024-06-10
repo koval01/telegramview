@@ -1,5 +1,5 @@
 import store from '../../../../store';
-import { Channel } from './types';
+import { Channel } from '../types.ts';
 
 export function loadChannelsFromStorage() {
     const storedChannels = localStorage.getItem('channels');

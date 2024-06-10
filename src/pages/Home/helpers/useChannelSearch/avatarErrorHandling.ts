@@ -1,21 +1,14 @@
 import {useRef, useState} from 'react';
-import {Channel, UpdateChannel} from './types';
-import store from "../../../../store.ts";
-import {useToast, openDialogLoading} from "./toastManagement.ts";
+import {UpdateChannel} from '../types';
+import {useToast} from "../useToast/hook";
+import {useRefreshList} from "../useRefreshList/hook";
 
 export function useAvatarErrorHandling() {
     const updateTimeout = useRef<UpdateChannel>({});
     const [loading, setLoading] = useState(false);
-    const channels = store.state.channels as Channel[];
-    const { showToastCenter } = useToast();
 
-    const callUpdate = async (onCallback?: () => void) => {
-        await store.dispatch('fetchChannels', {
-            usernames: channels.map(channel => channel.username),
-            onCallback: onCallback,
-            onErrorCallback: () => showToastCenter(`Failed to update channels`)
-        });
-    };
+    const { openDialogLoading } = useToast();
+    const { callUpdate } = useRefreshList();
 
     const handleAvatarError = async (username: string) => {
         if (updateTimeout.current[username]) return;

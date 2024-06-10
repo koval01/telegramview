@@ -16,10 +16,10 @@ export function useToast() {
         toastCenter.current.open();
     };
 
-    return { showToastCenter, toastCenter };
-}
+    const openDialogLoading = () => {
+        f7.dialog.preloader();
+        return () => f7.dialog.close();
+    };
 
-export const openDialogLoading = () => {
-    f7.dialog.preloader();
-    return () => f7.dialog.close();
-};
+    return { showToastCenter, openDialogLoading, toastCenter };
+}

@@ -6,7 +6,7 @@ import Framework7React from 'framework7-react'
 
 import './sentry'
 
-import App from './App.tsx'
+import App from './App'
 
 import 'framework7/css/bundle'
 import 'framework7-icons'

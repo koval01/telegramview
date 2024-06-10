@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import store from '../../../../store';
-import { Channel } from './types';
-import { useToast } from './toastManagement';
+import { Channel } from '../types';
+import { useToast } from '../useToast/hook';
 
 export function useSearchLogic() {
     const [searchQuery, setSearchQuery] = useState('');
