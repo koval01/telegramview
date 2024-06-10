@@ -48,19 +48,27 @@ interface Footer {
     author?: string
 }
 
+interface Poll {
+    question: string;
+    type: string;
+    votes: string;
+    options: Array<{ name: string; percent: number }>;
+}
+
+interface Media {
+    type: string;
+    url: string;
+    thumb?: string
+}
+
 interface Post {
     id: number;
     forwarded?: Forwarded;
     footer: Footer;
     content?: {
         text?: { html: string; string: string };
-        media?: Array<{ type: string; url: string; thumb?: string }>;
-        poll?: {
-            question: string;
-            type: string;
-            votes: string;
-            options: Array<{ name: string; percent: number }>;
-        };
+        media?: Array<Media>;
+        poll?: Poll;
     };
 }
 
@@ -316,6 +324,93 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
       </React.Fragment>
     );
 
+    const PostAvatar = ({ avatar }: { avatar: string | undefined }) => (
+        <div className="flex mr-2 shrink-0 relative top-1 select-none">
+            {avatar ? (
+                <img className="w-12 h-12 rounded-full" src={avatar} alt="Avatar" draggable="false" />
+            ) : (
+                <div className="w-12 h-12 rounded-full bg-neutral-400"></div>
+            )}
+        </div>
+    );
+
+    const PostMedia = ({ index, media, post }: { index: number, media: Media, post: Post }) => (
+        <React.Fragment key={index}>
+            {media.type === 'image' && (
+                <PostImage url={media.url} post={post} />
+            )}
+            {(media.type.includes('roundvideo') || media.type.includes('video') || media.type.includes('gif') || (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb)) && (
+                <PostVideo url={media.url} thumb={media.thumb} post={post} roundvideo={media.type === 'roundvideo'} />
+            )}
+            {media.type === 'voice' && (
+                <PostAudio url={media.url} />
+            )}
+        </React.Fragment>
+    );
+
+    const PostImage = ({ url, post }: { url: string, post: Post }) => (
+        <img
+            src={url}
+            alt="Media"
+            className={`rounded-xl w-full ${post.content?.text?.string ? 'mt-2' : ''}`}
+            draggable="false"
+        />
+    );
+
+    const PostVideo = ({ url, thumb, post, roundvideo }: {
+        url: string, thumb: string | undefined, post: Post, roundvideo: boolean
+    }) => (
+        <video
+            className={`w-full ${roundvideo ? 'rounded-full' : 'rounded-xl'} ${post.content?.text?.html ? 'mt-2' : ''}`}
+            poster={thumb}
+            controls
+            muted
+            autoPlay
+            preload="auto"
+        >
+            <source src={url} type="video/mp4"/>
+            <track src={undefined} kind="captions"/>
+            Your browser does not support the video element.
+        </video>
+    );
+
+    const PostAudio = ({url}: { url: string }) => (
+        <audio controls>
+            <source src={url} type="audio/ogg"/>
+            Your browser does not support the audio element.
+        </audio>
+    );
+
+    const PollFragment = ({poll}: { poll: Poll | undefined }) => (
+        <React.Fragment>
+            {poll && (
+                <div className="p-4 pt-2 select-none">
+                    <div className="mb-1">
+                        <div className="font-extrabold">
+                            {poll.question}
+                        </div>
+                        <div className="text-neutral-500">
+                            {poll.type}
+                        </div>
+                    </div>
+                    {poll.options.map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex">
+                            <div className="font-bold mr-2 min-w-10">
+                                {option.percent}%
+                            </div>
+                            <div className="w-full">
+                                <span className="text-neutral-100">
+                                    {option.name}
+                                </span>
+                                <Progressbar progress={option.percent}/>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </React.Fragment>
+    );
+
     return (
         <Page
             infinite
@@ -383,10 +478,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                         >
                             <Forwarded forwarded={post.forwarded} />
                             <div className="flex">
-                                <div className="flex mr-2 shrink-0 relative top-1 select-none">
-                                    <img className="w-12 h-12 rounded-full" src={channel.avatar} alt="Avatar"
-                                         draggable="false"/>
-                                </div>
+                                <PostAvatar avatar={channel.avatar} />
                                 <div className="flex-1">
                                     <div className="flex items-center mb-2 select-none w-full">
                                         <div className="flex-row max-w-full shrink items-center t-container">
@@ -437,53 +529,10 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                         {post.content?.text?.string && <StringToHtml text={post.content.text.string} />}
                                         {post.content?.media && post.content.media.length > 0 &&
                                             post.content.media.map((media, mediaIndex) => (
-                                                <React.Fragment key={mediaIndex}>
-                                                    {media.type === 'image' && (
-                                                        <img
-                                                            src={media.url}
-                                                            alt="Media"
-                                                            className={`rounded-xl w-full ${post.content?.text?.string ? 'mt-2' : ''}`}
-                                                            draggable="false"
-                                                        />
-                                                    )}
-                                                    {(media.type.includes('roundvideo') || media.type.includes('video') || media.type.includes('gif') || (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb)) && (
-                                                        <video
-                                                            className={`w-full ${media.type === 'roundvideo' ? 'rounded-full' : 'rounded-xl'} ${post.content?.text?.html ? 'mt-2' : ''}`}
-                                                            poster={media.thumb}
-                                                            controls
-                                                            muted
-                                                            preload="auto"
-                                                        >
-                                                            <source src={media.url} type="video/mp4"/>
-                                                            <track src={undefined} kind="captions"/>
-                                                            Your browser does not support the video element.
-                                                        </video>
-                                                    )}
-                                                    {media.type === 'voice' && (
-                                                        <audio controls>
-                                                            <source src={media.url} type="audio/ogg"/>
-                                                            Your browser does not support the audio element.
-                                                        </audio>
-                                                    )}
-                                                </React.Fragment>
-                                            ))}
-                                        {post.content?.poll && (
-                                            <div className="p-4 pt-2 select-none">
-                                                <div className="mb-1">
-                                                    <div className="font-extrabold">{post.content.poll.question}</div>
-                                                    <div className="text-neutral-500">{post.content.poll.type}</div>
-                                                </div>
-                                                {post.content.poll.options.map((option, optionIndex) => (
-                                                    <div key={optionIndex} className="flex">
-                                                        <div className="font-bold mr-2 min-w-10">{option.percent}%</div>
-                                                        <div className="w-full">
-                                                            <span className="text-neutral-100">{option.name}</span>
-                                                            <Progressbar progress={option.percent}/>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                <PostMedia index={mediaIndex} media={media} post={post} />
+                                            ))
+                                        }
+                                        <PollFragment poll={post.content?.poll} />
                                         <Author author={post.footer.author} />
                                     </div>
                                 </div>
