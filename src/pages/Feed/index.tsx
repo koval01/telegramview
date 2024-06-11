@@ -5,8 +5,8 @@ import { Props } from "./helpers/types";
 import { useChannelData } from "./hooks/useChannelData";
 import ProfilePopup from './components/ProfilePopup';
 import PostList from './components/PostList';
-import {Profile} from "./components/Profile.tsx";
-import {ChannelTitle} from "./components/Channel.tsx";
+import {Profile} from "./components/Profile";
+import {ChannelTitle} from "./components/Channel";
 
 const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     const { channel, posts, loading, fetchData, loadMore, showPreloader } = useChannelData(channelId, postId);

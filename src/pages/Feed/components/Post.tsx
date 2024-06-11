@@ -3,7 +3,7 @@ import React from "react";
 import {Icon, Progressbar} from "framework7-react";
 import {Verified} from "./Common";
 import {formatDate} from "../helpers/date";
-import {StringToHtml} from "../helpers/parser.tsx";
+import {StringToHtml} from "../helpers/parser";
 
 export const PostMedia = ({ index, media, post }: { index: number, media: Media, post: Post }) => (
     <div key={index} className="max-w-72">
