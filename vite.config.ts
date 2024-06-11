@@ -1,13 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import * as child from "child_process"
-
-const commitHash = child.execSync('git rev-parse --short HEAD').toString()
 
 export default defineConfig({
   define: {
-    __COMMIT_HASH__: JSON.stringify(commitHash),
     __CF_PAGES_URL__: JSON.stringify(process.env.CF_PAGES_URL),
     __CF_PAGES_COMMIT_SHA__: JSON.stringify(process.env.CF_PAGES_COMMIT_SHA)
   },
