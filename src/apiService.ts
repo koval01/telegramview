@@ -4,7 +4,11 @@ const API_HOST = import.meta.env.VITE_API_HOST;
 const BASE_URL = `https://${API_HOST}/v1/`;
 
 const headers = {
-    "X-Front-App-Name": "Telegram View React"
+    "X-Front-App-Name": "Telegram View React",
+    "X-CF-Pages": __CF_PAGES_URL__,
+    "X-Commit": __CF_PAGES_COMMIT_SHA__,
+    "X-App-Build": import.meta.env.MODE,
+    "X-Dev-Bypass": import.meta.env.VITE_DEV_BYPASS,
 };
 
 class ApiService {
