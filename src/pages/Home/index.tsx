@@ -38,9 +38,6 @@ export default function Home() {
                 loading={loading}
                 handleAvatarError={handleAvatarError}
             />
-            <div className="text-center text-neutral-700 select-none">
-                {__CF_PAGES_COMMIT_SHA__ && <span>build:{__CF_PAGES_COMMIT_SHA__.slice(0, 7)}</span>}
-            </div>
         </Page>
     );
 }
