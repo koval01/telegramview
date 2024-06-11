@@ -287,8 +287,8 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         <React.Fragment>
             {forwarded && (
                 <div className="flex absolute left-[3.25rem] top-1 select-none max-w-full">
-                    <Icon f7="arrow_turn_left_down" size="16px" className="text-neutral-400 top-1"/>
-                    <span className="text-neutral-400 ml-1 inline-block truncate">
+                    <Icon f7="arrowshape_turn_up_left_2_fill" size="16px" className="text-neutral-400"/>
+                    <span className="text-neutral-400 ml-1 inline-block truncate min-w-0 max-w-full">
                         {forwarded.name}
                     </span>
                 </div>
@@ -296,15 +296,27 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
         </React.Fragment>
     );
 
-    const PostFooter = ({ footer }: { footer: Footer }) => (
+    const PostStats = ({ footer, poll }: { footer: Footer, poll?: Poll | undefined }) => (
         <React.Fragment>
             {footer.views && (
-                <div className="flex gap-1 text-neutral-400">
-                    <div>
-                        <Icon f7="eye_fill" size="14px"/>
-                    </div>
-                    <div className="text-sm">
-                        {footer.views}
+                <div className="flex gap-2 text-neutral-400">
+                    {poll && (
+                        <div className="flex gap-1">
+                            <div>
+                                <Icon f7="checkmark_square_fill" size="14px"/>
+                            </div>
+                            <div className="text-sm">
+                                {poll.votes}
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex gap-1">
+                        <div>
+                            <Icon f7="eye_fill" size="14px"/>
+                        </div>
+                        <div className="text-sm">
+                            {footer.views}
+                        </div>
                     </div>
                 </div>
             )}
@@ -335,7 +347,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
     );
 
     const PostMedia = ({ index, media, post }: { index: number, media: Media, post: Post }) => (
-        <React.Fragment key={index}>
+        <div key={index} className="max-w-72">
             {media.type === 'image' && (
                 <PostImage url={media.url} post={post} />
             )}
@@ -345,7 +357,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             {media.type === 'voice' && (
                 <PostAudio url={media.url} />
             )}
-        </React.Fragment>
+        </div>
     );
 
     const PostImage = ({ url, post }: { url: string, post: Post }) => (
@@ -470,7 +482,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
             </Block>
 
             {!loading && (
-                <div className="w-full md:max-w-[680px] lg:max-w-[860px] xl:max-w-[920px] 2xl:max-w-[1060px] p-0 mt-8 block m-auto">
+                <div className="w-full md:max-w-[680px] lg:max-w-[720px] xl:max-w-[780px] 2xl:max-w-[840px] p-0 mt-8 block m-auto">
                     {posts.map((post, index) => (
                         <div
                             key={index}
@@ -537,7 +549,7 @@ const ChannelPage: React.FC<Props> = ({ channelId, postId }) => {
                                     </div>
                                 </div>
                                 <div className="select-none">
-                                    <PostFooter footer={post.footer} />
+                                    <PostStats footer={post.footer} poll={post.content?.poll} />
                                 </div>
                             </div>
                         </div>
