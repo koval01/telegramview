@@ -40,16 +40,28 @@ export default defineConfig({
       })
   ],
   build: {
+    cssMinify: 'lightningcss',
     minify: 'terser',
     terserOptions: {
-      ecma: 5,
+      ecma: 2020,
       compress: {
-        drop_console: true
+        drop_console: true,
+        unsafe: true,
+        unsafe_methods: true,
+        unsafe_math: true,
+        unsafe_proto: true,
+        unsafe_regexp: true,
+        unsafe_arrows: true,
+        unsafe_Function: true,
+        unsafe_undefined: true
       },
       format: {
         ascii_only: true,
         comments: false,
       }
     }
+  },
+  css: {
+    lightningcss: {}
   }
 })
