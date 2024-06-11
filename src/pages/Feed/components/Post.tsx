@@ -146,7 +146,7 @@ export const PostHead = ({channel, post}: { channel: Channel, post: Post }) => (
                 <Verified verified={!!channel.labels && channel.labels.includes("verified")}/>
                 </div>
             </div>
-            <div className="font-light text-sm text-neutral-400">
+            <div className="font-light text-xs text-neutral-400">
                 <time>{formatDate(post.footer.date.unix)}</time>
             </div>
         </div>
