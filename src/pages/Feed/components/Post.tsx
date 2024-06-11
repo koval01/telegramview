@@ -1,63 +1,96 @@
-import {Channel, Footer, Media, Poll, Post} from "../helpers/types";
-import React from "react";
-import {Icon, Progressbar} from "framework7-react";
-import {Verified} from "./Common";
-import {formatDate} from "../helpers/date";
-import {StringToHtml} from "../helpers/parser";
+import React, { useState } from "react";
+import { Channel, Footer, Media, Poll, Post } from "../helpers/types";
+import { Icon, Progressbar } from "framework7-react";
+import { Verified } from "./Common";
+import { formatDate } from "../helpers/date";
+import { StringToHtml } from "../helpers/parser";
+import { Gallery, Image } from "react-grid-gallery";
+import Lightbox, {SlideImage} from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Video from "yet-another-react-lightbox/plugins/video";
 
-export const PostMedia = ({ index, media, post }: { index: number, media: Media, post: Post }) => (
-    <div key={index} className="max-w-72">
-        {media.type === 'image' && (
-            <PostImage url={media.url} post={post} />
-        )}
-        {(
-            media.type.includes('roundvideo') ||
-            media.type.includes('video') ||
-            media.type.includes('gif') ||
-            (media.type.includes('sticker') && media.url.includes(".webm") && media.thumb)
-        ) && (
-            <PostVideo url={media.url} thumb={media.thumb} post={post} roundvideo={media.type === 'roundvideo'} />
-        )}
-        {media.type === 'voice' && (
-            <PostAudio url={media.url} />
-        )}
-    </div>
-);
+export const PostMedia = ({ media }: { media: Media[] }) => {
+    const images = media
+        .map((m, index) => {
+            if (m.type === 'image') {
+                return {
+                    src: m.url,
+                    type: "image",
+                    index
+                };
+            } else if (m.type.includes('video') || m.type.includes('gif')) {
+                return {
+                    src: m.thumb || m.url,
+                    type: "video",
+                    width: 1280,
+                    height: 720,
+                    sources: [{ src: m.url, type: "video/mp4" }],
+                    index
+                };
+            } else {
+                return null;
+            }
+        })
+        .filter(m => m !== null) as SlideImage[];
 
-export const PostImage = ({ url, post }: { url: string, post: Post }) => (
-    <img
-        src={url}
-        alt="Media"
-        className={`rounded-xl w-full ${post.content?.text?.string ? 'mt-2' : ''}`}
-        draggable="false"
-    />
-);
+    const [index, setIndex] = useState(-1);
+    const handleClick = (index: number) => setIndex(index);
 
-export const PostVideo = ({ url, thumb, post, roundvideo }: {
-    url: string, thumb: string | undefined, post: Post, roundvideo: boolean
-}) => (
+    return (
+        <React.Fragment>
+            {images.length > 0 && (
+                <div className="rounded-xl max-w-full">
+                    <Gallery
+                        images={images.map(({ src }) => ({ src })) as Image[]}
+                        onClick={handleClick}
+                        enableImageSelection={false}
+                    />
+                    <Lightbox
+                        plugins={[Fullscreen, Video]}
+                        slides={images}
+                        open={index >= 0}
+                        index={index}
+                        close={() => setIndex(-1)}
+                    />
+                </div>
+            )}
+            <div className="max-w-72">
+                {media
+                    .filter(m => m.type === 'voice')
+                    .map((m, index) => (
+                        <div key={index}>
+                            <PostAudio url={m.url} />
+                        </div>
+                    ))}
+            </div>
+        </React.Fragment>
+    );
+};
+
+export const PostRoundVideo = ({ url, thumb }: { url: string, thumb: string | undefined }) => (
     <video
-        className={`w-full ${roundvideo ? 'rounded-full' : 'rounded-xl'} ${post.content?.text?.html ? 'mt-2' : ''}`}
+        className="w-full rounded-full"
         poster={thumb}
         controls
         muted
         autoPlay
         preload="auto"
     >
-        <source src={url} type="video/mp4"/>
-        <track src={undefined} kind="captions"/>
+        <source src={url} type="video/mp4" />
+        <track src={undefined} kind="captions" />
         Your browser does not support the video element.
     </video>
 );
 
-export const PostAudio = ({url}: { url: string }) => (
+export const PostAudio = ({ url }: { url: string }) => (
     <audio controls>
-        <source src={url} type="audio/ogg"/>
+        <source src={url} type="audio/ogg" />
         Your browser does not support the audio element.
     </audio>
 );
 
-export const PollFragment = ({poll}: { poll: Poll | undefined }) => (
+export const PollFragment = ({ poll }: { poll: Poll | undefined }) => (
     <React.Fragment>
         {poll && (
             <div className="p-4 pt-2 select-none">
@@ -78,7 +111,7 @@ export const PollFragment = ({poll}: { poll: Poll | undefined }) => (
                             <span className="text-neutral-100">
                                 {option.name}
                             </span>
-                            <Progressbar progress={option.percent}/>
+                            <Progressbar progress={option.percent} />
                         </div>
                     </div>
                 ))}
@@ -119,7 +152,7 @@ export const PostAuthor = ({ footer }: { footer: Footer }) => (
         {footer.author && (
             <div className="flex gap-1">
                 <div>
-                    <Icon f7="person" size="14px" className="!align-baseline"/>
+                    <Icon f7="person" size="14px" className="!align-baseline" />
                 </div>
                 <div className="text-sm w-full whitespace-nowrap">
                     {footer.author}
@@ -129,12 +162,12 @@ export const PostAuthor = ({ footer }: { footer: Footer }) => (
     </div>
 );
 
-export const PostHead = ({channel, post}: { channel: Channel, post: Post }) => (
+export const PostHead = ({ channel, post }: { channel: Channel, post: Post }) => (
     <React.Fragment>
         <div>
             <div
                 className="rounded-full w-12 h-12 bg-cover"
-                style={{backgroundImage: `url(${channel.avatar})`}}>
+                style={{ backgroundImage: `url(${channel.avatar})` }}>
             </div>
         </div>
         <div>
@@ -143,7 +176,7 @@ export const PostHead = ({channel, post}: { channel: Channel, post: Post }) => (
                     {channel.title}
                 </div>
                 <div>
-                <Verified verified={!!channel.labels && channel.labels.includes("verified")}/>
+                    <Verified verified={!!channel.labels && channel.labels.includes("verified")} />
                 </div>
             </div>
             <div className="font-light text-xs text-neutral-400">
@@ -161,11 +194,15 @@ export const PostFragment: React.FC<{ channel: Channel; post: Post }> = ({ chann
             </div>
             <div className="mt-2">
                 {post.content?.text?.string && <StringToHtml text={post.content.text.string} />}
-                {post.content?.media && post.content.media.length > 0 &&
-                    post.content.media.map((media, mediaIndex) => (
-                        <PostMedia key={mediaIndex} index={mediaIndex} media={media} post={post} />
-                    ))
-                }
+                {post.content?.media && post.content.media.length > 0 && (
+                    post.content.media.some(m => m.type === 'roundvideo') ? (
+                        post.content.media.filter(m => m.type === 'roundvideo').map((m, index) => (
+                            <PostRoundVideo key={index} url={m.url} thumb={m.thumb} />
+                        ))
+                    ) : (
+                        <PostMedia media={post.content.media} />
+                    )
+                )}
                 <PollFragment poll={post.content?.poll} />
             </div>
             <div className="flex mt-3 h-4 w-full select-none text-neutral-400">
