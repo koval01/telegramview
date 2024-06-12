@@ -13,8 +13,8 @@ const convertLinksToJSX = (text: string): React.ReactNode[] => {
             }
             return (
                 <Link key={index} href={href} target="_blank" external className={
-                    "truncate inline-block min-w-0 max-w-40 md:max-w-64 lg:max-w-96" +
-                    "inline-block align-bottom text-blue-500"}>
+                    "truncate inline-block min-w-0 max-w-64 md:max-w-96 lg:max-w-[32rem]" +
+                    "inline-block align-bottom text-blue-500 select-all"}>
                     {part}
                 </Link>
             );

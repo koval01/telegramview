@@ -1,5 +1,5 @@
 export const PostVideo = ({ url, thumb, roundvideo, disableRound }: {
-    url: string, thumb: string | undefined, roundvideo: boolean, disableRound: boolean
+    url: string, thumb: string | undefined, roundvideo: boolean, disableRound?: boolean | undefined
 }) => (
     <video
         className={`m-auto ${roundvideo ? 'rounded-full' : !disableRound ? 'rounded-xl' : ''}`}

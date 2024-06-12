@@ -11,12 +11,18 @@ interface ProfilePopupProps {
 
 const ProfilePopup: React.FC<ProfilePopupProps> = ({ channel, popupOpened, setPopupOpened }) => {
     return (
-        <Popup push className="profile-info-popup" opened={popupOpened} onPopupClosed={() => setPopupOpened(false)}>
+        <Popup
+            push
+            closeOnEscape
+            className="profile-info-popup border border-neutral-900 !rounded-2xl"
+            opened={popupOpened}
+            onPopupClosed={() => setPopupOpened(false)}
+        >
             <View>
                 <Page>
                     <Navbar title="Channel profile" large transparent>
                         <NavRight>
-                            <Link popupClose>Close</Link>
+                            <Link popupClose className="mr-2">Close</Link>
                         </NavRight>
                     </Navbar>
                     <Block className="flex">
