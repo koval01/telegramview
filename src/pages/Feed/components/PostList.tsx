@@ -1,6 +1,6 @@
 import React from 'react';
 import { Channel, Post } from '../helpers/types';
-import {PostFragment} from './Post';
+import {PostFragment} from './post/Post';
 
 interface PostListProps {
     posts: Post[];
@@ -9,7 +9,9 @@ interface PostListProps {
 
 const PostList: React.FC<PostListProps> = ({ posts, channel }) => {
     return (
-        <div className="w-full md:max-w-[680px] lg:max-w-[720px] xl:max-w-[780px] 2xl:max-w-[840px] p-0 mt-8 block m-auto">
+        <div className={
+            "w-full md:max-w-[680px] lg:max-w-[720px] xl:max-w-[780px] 2xl:max-w-[840px] p-0 mt-8 block m-auto"
+        }>
             {posts.map((post) => (
                 <React.Fragment key={post.id}>
                     <PostFragment post={post} channel={channel} />

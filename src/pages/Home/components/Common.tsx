@@ -1,5 +1,4 @@
-import {Preloader} from "framework7-react";
-import VerifiedIcon from "../../../icons/VerifiedIcon";
+import {Icon, Preloader} from "framework7-react";
 
 interface AvatarProps {
     avatar: string;
@@ -25,7 +24,11 @@ const Title = ({ title, isVerified }: { title: string, isVerified: boolean }) =>
         <div>{title}</div>
         {isVerified && (
             <div>
-                <VerifiedIcon className="w-6 h-6"/>
+                <Icon
+                    size={17}
+                    f7="checkmark_seal_fill"
+                    className="!align-baseline text-blue-400"
+                />
             </div>
         )}
     </div>
