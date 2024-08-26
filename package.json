@@ -12,7 +12,7 @@
   "dependencies": {
     "@sentry/react": "^8.9.2",
     "autoprefixer": "^10.4.19",
-    "axios": "^1.7.2",
+    "axios": "^1.7.5",
     "cssnano": "^7.0.5",
     "dayjs": "^1.11.11",
     "framework7": "^8.3.3",
